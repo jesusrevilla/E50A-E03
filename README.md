@@ -146,12 +146,6 @@ tipos de datos como JSON y JSONB.
 Guardar información flexible de productos con atributos variables usando JSONB.
 
 🧱 Crear tabla con campo JSONB
-```sql
-ALTER TABLE clientes
-DROP COLUMN email;
-ALTER TABLE clientes
-ADD COLUMN direccion VARCHAR(200) NOT NULL;
-```
 
 ```sql
 CREATE TABLE productos_json (
