@@ -43,17 +43,15 @@ Utiliza la primera, segunda y tercera formas normales y normaliza la tabla, crea
 
 En este punto no es necesario insertar datos solo crea las tablas requeridas.
 
-## 2. Tipos de datos
+## 2. Procedimiento almacenado
 
-Crea una tabla llamda `empleados` de acuerdo a los siguientes datos. Solo crea la tabla
-no insertes datos.
+🛠️  Registrar un nuevo pedido
+Este procedimiento llamado registrar_pedido inserta un nuevo pedido y sus detalles en varias tablas. 
 
-empleado_id: 1,  
-nombre: 'Carlos López',  
-fecha_nacimiento: '1985-06-15',  
-salario: 50000,  
-activo: true  
-
+Ejemplo de uso:
+```sql
+CALL registrar_pedido(1, '2025-05-20', 2, 3);
+```
 
 ## 3. Índices
 
