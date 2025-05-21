@@ -75,18 +75,15 @@ Ejemplo de uso:
 CALL registrar_pedido(1, '2025-05-20', 2, 3);
 ```
 
-## 3. Índices
+## 3. Función
 
-Crea una tabla llamada `ventas` utilizando el siguiente script:
+🧮 Calcula el total gastado por un cliente
+Esta función devuelve el total gastado por un cliente sumando todos sus pedidos.
+
+Ejemplo de uso
 
 ```sql
-CREATE TABLE ventas (
-    venta_id SERIAL PRIMARY KEY,
-    fecha DATE NOT NULL,
-    cliente_id INTEGER NOT NULL,
-    producto_id INTEGER NOT NULL,
-    cantidad INTEGER NOT NULL
-);
+SELECT total_gastado_por_cliente(1);
 ```
 
 Y crea un índice compuesto llamado idx_cliente_producto
