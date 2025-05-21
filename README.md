@@ -261,6 +261,5 @@ INSERT INTO rutas (id_origen, id_destino, distancia_km) VALUES
 (3, 4, 700);  -- Guadalajara → Monterrey
 
 ``` 
-🔍 3. Consultas útiles
-a) Ver todas las rutas desde San Luis Potosí
-b) Ver ciudades conectadas indirectamente (2 saltos)
+🔍 3. Consulta útil   
+Ver todas las rutas desde San Luis Potosí   
