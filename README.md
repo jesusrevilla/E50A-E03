@@ -55,19 +55,15 @@ INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
 (2, 3, 1);  -- Luis compra 1 Teclado
 ```
 
-👁️ 3. Crear una vista con JOINs (vista_detalle_pedidos)
+👁️ Crear una vista con JOINs (vista_detalle_pedidos)
 Esta vista muestra el detalle de cada pedido, incluyendo el nombre del cliente, producto, cantidad y el total por línea.
 
 
-🔍 4. Consultar la vista
+🔍 Consultar la vista
 ```sql
 SELECT * FROM vista_detalle_pedidos;
 ```
 
-
-Utiliza la primera, segunda y tercera formas normales y normaliza la tabla, crea las tablas necesarias y conserva la tablas `pedidos`. Crea la tabla `pedidos` al final por la dependencia de otras tablas.
-
-En este punto no es necesario insertar datos solo crea las tablas requeridas.
 
 ## 2. Procedimiento almacenado
 
