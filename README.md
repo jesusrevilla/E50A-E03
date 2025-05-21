@@ -88,37 +88,64 @@ SELECT total_gastado_por_cliente(1);
 
 Y crea un índice compuesto llamado idx_cliente_producto
 
-## 4. Consulta de datos básica
+## 4. Disparadores (Triggers)
 
-Altera la tabla llamada `productos` utilizando el
-siguiente script
+Crear un trigger que registre en una tabla de auditoría cada vez   
+que se inserte un nuevo pedido, incluyendo el ID del cliente,   
+la fecha del pedido y la fecha y hora del registro.  
 
+🧱 Crear las tablas necesarias
 ```sql
-ALTER TABLE productos
-ADD COLUMN stock INT DEFAULT 0;
+-- Tabla de auditoría
+CREATE TABLE auditoria_pedidos (
+    id_auditoria SERIAL PRIMARY KEY,
+    id_cliente INT,
+    fecha_pedido DATE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 ```
 
-Inserta los siguientes datos:
+⚙️ Crear la función que será llamada por el trigger
 
 ```sql
-INSERT INTO productos (nombre, precio, stock) VALUES
-('Laptop', 1500.00, 10),
-('Teclado', 50.00, 100),
-('Mouse', 25.00, 200),
-('Monitor', 300.00, 50);
+CREATE OR REPLACE FUNCTION registrar_auditoria_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido)
+    VALUES (NEW.id_cliente, NEW.fecha);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 ```
 
-- Selecciona productos con precio mayor a 100
+🔔 3. Crear el trigger   
 
-- Selecciona productos con stock menor a 50
 
-## 5. JOIN
 
-Altera la tabla `clientes` y crea la tabla `pedidos`  
-utilizando los sigueintes scripts.
+✅ 4. Probar el trigger
+```sql
+-- Insertar un nuevo pedido
+INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
 
-Tabla clientes:
+-- Verificar la auditoría
+SELECT * FROM auditoria_pedidos;
 
+```
+
+
+## 5. NoSQL
+
+Bases de Datos NoSQL (usando JSON en PostgreSQL)
+Aunque PostgreSQL es una base de datos relacional,   
+permite trabajar con estructuras NoSQL usando   
+tipos de datos como JSON y JSONB.
+
+🎯 Objetivo
+Guardar información flexible de productos con atributos variables usando JSONB.
+
+🧱 Crear tabla con campo JSONB
 ```sql
 ALTER TABLE clientes
 DROP COLUMN email;
@@ -126,59 +153,113 @@ ALTER TABLE clientes
 ADD COLUMN direccion VARCHAR(200) NOT NULL;
 ```
 
-Tabla pedidos:
-
 ```sql
-CREATE TABLE pedidos (
-    pedido_id SERIAL PRIMARY KEY,
-    cliente_id INTEGER NOT NULL,
-    fecha DATE NOT NULL,
-    total NUMERIC(10, 2) NOT NULL,
-    FOREIGN KEY (cliente_id) REFERENCES clientes(cliente_id)
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
 );
+
 ```
 
-Inserta los siguientes datos:
+📥 Insertar datos con estructura flexible
 
 ```sql
-INSERT INTO clientes (nombre, direccion) VALUES
-('Carlos López', 'Calle Falsa 123'),
-('María García', 'Avenida Siempre Viva 456'),
-('Adriana García', 'Avenida Viva 321');
-``` 
+INSERT INTO productos_json (nombre, atributos) VALUES
+('Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}'),
+('Smartphone', '{"marca": "Samsung", "pantalla": "6.5 pulgadas", "almacenamiento": "128GB"}'),
+('Tablet', '{"marca": "Apple", "modelo": "iPad Air", "color": "gris"}');
+```
+
+🔍 Consultar productos con un atributo específico
 ```sql
-INSERT INTO pedidos (cantidad, precio, cliente_id, producto_id, fecha, total) VALUES
-(1, 1500, 1, 1, '2025-04-01', 1500.00),
-(2, 25, 2, 2,  '2025-04-02', 50.00),
-(1, 300, 1, 3, '2025-04-03', 300.00);
+SELECT * FROM productos_json
+WHERE atributos ->> 'marca' = 'Dell';
 ``` 
 
-- Escribe una consulta SQL para seleccionar todos los pedidos junto con la información del cliente que realizó cada pedido.
+Registro de usuarios con historial de actividad (JSONB)
+🎯 Objetivo
+Modelar una tabla de usuarios donde cada usuario tiene   
+un historial de actividades almacenado como un arreglo de objetos JSON.   
 
+🧱 Crear la tabla
 
-- Escribe una consulta SQL para seleccionar todos los clientes y sus pedidos, incluyendo aquellos clientes que no tienen pedidos.
-
-## 6. Expresiones con SQL
-
-
-Altera la siguiente tabla:  
 ```sql
-ALTER TABLE ventas
-ADD COLUMN precio_unitario NUMERIC(10, 2) NOT NULL;
-``` 
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB
+);
+```
+📥 Insertar datos con historial de actividad
 
-Inserta los siguientes datos:
 ```sql
-INSERT INTO ventas (producto_id, cantidad, precio_unitario, fecha, cliente_id) VALUES
-(1, 2, 1500.00, '2025-04-01', 1),
-(2, 5, 50.00, '2025-04-02', 1),
-(3, 10, 25.00, '2025-04-03', 2),
-(4, 3, 300.00, '2025-04-04', 3);
+INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
+('Laura Gómez', 'laura@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-02", "accion": "subio_archivo"},
+    {"fecha": "2025-05-03", "accion": "cerró_sesion"}
+]'),
+('Pedro Ruiz', 'pedro@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-04", "accion": "comentó_publicación"}
+]');
+```
+
+🔍 Consultar usuarios que realizaron una acción específica
+
+```sql
+SELECT nombre, correo
+FROM usuarios
+WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+```
+🔍 Extraer todas las acciones de un usuario
+
+
+
+## 6. Gráfos
+
+🕸️ Red de conexiones entre ciudades
+
+🎯 Objetivo
+Modelar un grafo dirigido donde los nodos son ciudades   
+y las aristas son rutas entre ellas con una distancia.   
+Luego, realizar consultas para explorar las conexiones.
+
+🧱 1. Crear las tablas
+
+```sql
+-- Nodos: ciudades
+CREATE TABLE ciudades (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+-- Aristas: rutas entre ciudades
+CREATE TABLE rutas (
+    id_origen INT REFERENCES ciudades(id),
+    id_destino INT REFERENCES ciudades(id),
+    distancia_km INT,
+    PRIMARY KEY (id_origen, id_destino)
+);
 ``` 
+📥 2. Insertar datos
 
-- Calcular el total de ventas por producto_id: Escribe una consulta SQL que agrupe 
-las ventas por producto_id y calcule el total de ventas para cada producto, finalmente ordene
-por el total de ventas de manera descendente.
+```sql
+-- Ciudades
+INSERT INTO ciudades (nombre) VALUES
+('San Luis Potosí'), ('Querétaro'), ('Guadalajara'), ('Monterrey'), ('CDMX');
 
+-- Rutas (grafo dirigido)
+INSERT INTO rutas (id_origen, id_destino, distancia_km) VALUES
+(1, 2, 180),  -- SLP → Querétaro
+(2, 3, 350),  -- Querétaro → Guadalajara
+(1, 5, 410),  -- SLP → CDMX
+(5, 4, 900),  -- CDMX → Monterrey
+(3, 4, 700);  -- Guadalajara → Monterrey
 
-- Filtrar ventas mayores a un cierto valor: Escribe una consulta SQL que seleccione todas las ventas cuyo total sea mayor a 1000.
+``` 
+🔍 3. Consultas útiles
+a) Ver todas las rutas desde San Luis Potosí
+b) Ver ciudades conectadas indirectamente (2 saltos)
