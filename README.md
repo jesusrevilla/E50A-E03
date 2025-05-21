@@ -179,7 +179,7 @@ WHERE atributos ->> 'marca' = 'Dell';
 
 Registro de usuarios con historial de actividad (JSONB)    
 
-🎯 Objetivo
+🎯 Objetivo   
 Modelar una tabla de usuarios donde cada usuario tiene   
 un historial de actividades almacenado como un arreglo de objetos JSON.   
 
