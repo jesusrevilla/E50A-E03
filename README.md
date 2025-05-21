@@ -177,7 +177,8 @@ SELECT * FROM productos_json
 WHERE atributos ->> 'marca' = 'Dell';
 ``` 
 
-Registro de usuarios con historial de actividad (JSONB)
+Registro de usuarios con historial de actividad (JSONB)    
+
 🎯 Objetivo
 Modelar una tabla de usuarios donde cada usuario tiene   
 un historial de actividades almacenado como un arreglo de objetos JSON.   
@@ -220,7 +221,7 @@ WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
 
 ## 6. Gráfos
 
-🕸️ Red de conexiones entre ciudades
+🕸️ Red de conexiones entre ciudades   
 
 🎯 Objetivo
 Modelar un grafo dirigido donde los nodos son ciudades   
