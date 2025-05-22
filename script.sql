@@ -164,7 +164,9 @@ SELECT nombre, correo
 FROM usuarios
 WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
 
-
+SELECT jsonb_array_elements(historial_actividad)->>'accion' AS accion
+FROM usuarios
+WHERE nombre = 'Pedro Ruiz';
 
 
 --6.
@@ -194,5 +196,12 @@ INSERT INTO rutas (id_origen, id_destino, distancia_km) VALUES
 (3, 4, 700);  -- Guadalajara → Monterrey
 
 
-SELECT * FROM rutas 
-WHERE id_origen = 1;
+SELECT 
+    ciudad_origen.nombre AS ciudad_origen,
+    ciudad_destino.nombre AS ciudad_destino,
+    rutas.distancia_km
+FROM rutas
+JOIN ciudades AS ciudad_origen ON rutas.id_origen = ciudad_origen.id
+JOIN ciudades AS ciudad_destino ON rutas.id_destino = ciudad_destino.id
+WHERE ciudad_origen.nombre = 'San Luis Potosi';
+
