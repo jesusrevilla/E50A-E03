@@ -108,18 +108,6 @@ CREATE TABLE auditoria_pedidos (
 
 ⚙️ Crear la función que será llamada por el trigger
 
-```sql
-CREATE OR REPLACE FUNCTION registrar_auditoria_pedido()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido)
-    VALUES (NEW.id_cliente, NEW.fecha);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-```
-
 🔔 3. Crear el trigger   
 
 
