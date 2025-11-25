@@ -31,7 +31,9 @@ CREATE TABLE detalle_pedido (
     id_producto INT REFERENCES productos(id_producto),
     cantidad INT
 );
+```
 
+```sql
 -- Clientes
 INSERT INTO clientes (nombre, correo) VALUES
 ('Ana Torres', 'ana@example.com'),
