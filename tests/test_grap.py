@@ -29,7 +29,7 @@ def init_db():
     try:
         run_sql_file(cur, "01_create_tables.sql")
         run_sql_file(cur, "02_insert_data.sql")
-        run_sql_file(cur, "03_views_sp_func_trigger.sql")
+        run_sql_file(cur, "script.sql")
     finally:
         cur.close()
         conn.close()
