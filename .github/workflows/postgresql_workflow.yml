@@ -56,4 +56,24 @@ jobs:
         
     - name: Run tests
       run: |
-        pytest
+        pytest -vv test/test_func.py
+
+    - name: Run tests
+      run: |
+        pytest -vv test/test_grap.py
+
+    - name: Run tests
+      run: |
+        pytest -vv test/test_json.py
+
+    - name: Run tests
+      run: |
+        pytest -vv test/test_store_proc.py
+
+    - name: Run tests
+      run: |
+        pytest -vv test/test_trigger.py
+
+    - name: Run tests
+      run: |
+        pytest -vv test/test_view.py
