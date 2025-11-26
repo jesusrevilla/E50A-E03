@@ -2,14 +2,13 @@ import psycopg2
 import pytest
 import decimal
 
-# Configuración de conexión (ajústala si usas conftest.py)
 DB_HOST = "localhost"
 DB_NAME = "test_db"
 DB_USER = "postgres"
 DB_PASS = "postgres"
 
 def execute_query(query, fetch=True):
-    # Función auxiliar para ejecutar consultas
+    
     conn = None
     try:
         conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
@@ -30,8 +29,7 @@ def execute_query(query, fetch=True):
 
 def test_total_gastado_por_cliente_ana():
     """Verifica el total gastado por Ana Torres (ID 1)."""
-    # Ana compró: 1 Laptop (1200.00) + 2 Mouse (2 * 25.50 = 51.00)
-    # Total esperado: 1251.00
+    
     expected_total = decimal.Decimal('1251.00')
     
     query = "SELECT total_gastado_por_cliente(1);"
