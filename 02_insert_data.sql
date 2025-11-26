@@ -19,3 +19,34 @@ INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
 (1, 1, 1),  -- Ana compra 1 Laptop
 (1, 2, 2),  -- Ana compra 2 Mouse
 (2, 3, 1);  -- Luis compra 1 Teclado
+
+INSERT INTO productos_json (nombre, atributos) VALUES
+('Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}'),
+('Smartphone', '{"marca": "Samsung", "pantalla": "6.5 pulgadas", "almacenamiento": "128GB"}'),
+('Tablet', '{"marca": "Apple", "modelo": "iPad Air", "color": "gris"}');
+
+
+INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
+('Laura Gómez', 'laura@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-02", "accion": "subio_archivo"},
+    {"fecha": "2025-05-03", "accion": "cerró_sesion"}
+]'),
+('Pedro Ruiz', 'pedro@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-04", "accion": "comentó_publicación"}
+]');
+
+
+-- Ciudades
+INSERT INTO ciudades (nombre) VALUES
+('San Luis Potosí'), ('Querétaro'), ('Guadalajara'), ('Monterrey'), ('CDMX');
+
+-- Rutas (grafo dirigido)
+INSERT INTO rutas (id_origen, id_destino, distancia_km) VALUES
+(1, 2, 180),  -- SLP → Querétaro
+(2, 3, 350),  -- Querétaro → Guadalajara
+(1, 5, 410),  -- SLP → CDMX
+(5, 4, 900),  -- CDMX → Monterrey
+(3, 4, 700);  -- Guadalajara → Monterrey
+
