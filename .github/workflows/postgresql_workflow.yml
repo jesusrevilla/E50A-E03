@@ -39,21 +39,19 @@ jobs:
         pip install -r requirements.txt
 
     - name: Wait for PostgreSQL
-      run: |
-        sleep 10
+      run: sleep 10
 
-    - name: Set up database schema and data
+    - name: Create schema
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
 
     - name: Insert data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql
 
-    - name: Query data
+    - name: Create views & functions
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
-        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_retrieve_everything_from_a_table.sql
+
     - name: Run tests
-      run: |
-        pytest
+      run: pytest
