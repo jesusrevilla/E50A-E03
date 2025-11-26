@@ -1,26 +1,17 @@
 import psycopg2
-import pytest
 
-@pytest.fixture
-def db():
+def test_stored_procedure():
     conn = psycopg2.connect(
-        host="localhost",
-        dbname="test_db",
-        user="postgres",
-        password="postgres"
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
     )
-    yield conn
-    conn.close()
+    cur = conn.cursor()
 
+    cur.execute("CALL sp_crear_cliente('marcela');")
 
-def test_store_procedure(db):
-    """
-    CALL sp_add_product('Galleta', 5)
-    """
-    cur = db.cursor()
-    cur.execute("CALL sp_add_product('Test Galleta', 5);")
-    db.commit()
-
-    cur.execute("SELECT id FROM productos WHERE nombre='Test Galleta';")
-    assert cur.fetchone() is not None
-
+    cur.execute("SELECT COUNT(*) FROM clientes WHERE nombre='marcela';")
+    count = cur.fetchone()[0]
+    assert count == 1
