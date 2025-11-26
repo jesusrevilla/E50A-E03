@@ -1,29 +1,61 @@
+import os
+from pathlib import Path
+
 import psycopg2
-import pytest
 
-DB_CONFIG = "dbname=tu_base_datos user=tu_usuario password=tu_password host=localhost"
 
-def test_indice_existe():
-    """
-    3.1 Índice: Valida que el índice 'idx_cliente_producto' exista en la base de datos.
-    """
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "postgres"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
+
+
+def run_sql_file(cur, filename: str) -> None:
+    path = ROOT / filename
+    with path.open(encoding="utf-8") as f:
+        cur.execute(f.read())
+
+
+def init_db():
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(DB_CONFIG)
-        cur = conn.cursor()
-        
-        # Consultamos el catálogo de índices de Postgres
-        query = "SELECT indexname FROM pg_indexes WHERE indexname = 'idx_cliente_producto';"
-        cur.execute(query)
-        res = cur.fetchone()
-        
-        assert res is not None, "El índice 'idx_cliente_producto' no fue encontrado."
-        assert res[0] == 'idx_cliente_producto'
-        
-        print("✅ Test Índice: PASÓ")
+        run_sql_file(cur, "01_create_tables.sql")
+        run_sql_file(cur, "02_insert_data.sql")
+        run_sql_file(cur, "script.sql")
+    finally:
         cur.close()
         conn.close()
-    except Exception as e:
-        pytest.fail(f"Error en test_index: {e}")
 
-if __name__ == "__main__":
-    test_indice_existe()
+
+def test_indice_compuesto_existe():
+    init_db()
+
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT indexname, tablename
+            FROM pg_indexes
+            WHERE tablename = 'detalle_pedido'
+              AND indexname = 'idx_cliente_producto';
+            """
+        )
+        rows = cur.fetchall()
+        assert len(rows) == 1
+        indexname, tablename = rows[0]
+        assert indexname == "idx_cliente_producto"
+        assert tablename == "detalle_pedido"
+    finally:
+        cur.close()
+        conn.close()
