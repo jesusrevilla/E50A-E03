@@ -39,3 +39,16 @@ CREATE TABLE usuarios (
     historial_actividad JSONB
 );
 
+-- Nodos: ciudades
+CREATE TABLE ciudades (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+-- Aristas: rutas entre ciudades
+CREATE TABLE rutas (
+    id_origen INT REFERENCES ciudades(id),
+    id_destino INT REFERENCES ciudades(id),
+    distancia_km INT,
+    PRIMARY KEY (id_origen, id_destino)
+);
