@@ -1,18 +1,16 @@
 import pytest
 
-def test_procedure_registrar_pedido(db_cursor):
-    db_cursor.execute("INSERT INTO clientes (nombre, correo) VALUES ('Proc User', 'proc@test.com') RETURNING id_cliente")
-    id_cliente = db_cursor.fetchone()[0]
+def test_trigger_auditoria(db_cursor):
+    # Setup
+    db_cursor.execute("INSERT INTO clientes (nombre, correo) VALUES ('Audit User', 'audit@test.com') RETURNING id_cliente")
+    cid = db_cursor.fetchone()[0]
     
-    db_cursor.execute("INSERT INTO productos (nombre, precio) VALUES ('Proc Prod', 50.00) RETURNING id_producto")
-    id_producto = db_cursor.fetchone()[0]
+    # Acción: Insertar pedido (esto debería disparar el trigger)
+    db_cursor.execute("INSERT INTO pedidos (id_cliente, fecha) VALUES (%s, '2025-12-01')", (cid,))
     
-    db_cursor.execute(f"CALL registrar_pedido({id_cliente}, '2025-10-10', {id_producto}, 5)")
+    # Validar: Revisar tabla auditoria_pedidos
+    db_cursor.execute("SELECT id_cliente, fecha_pedido FROM auditoria_pedidos WHERE id_cliente = %s", (cid,))
+    audit_row = db_cursor.fetchone()
     
-    db_cursor.execute("SELECT * FROM pedidos WHERE id_cliente = %s", (id_cliente,))
-    pedido = db_cursor.fetchone()
-    assert pedido is not None
-    
-    db_cursor.execute("SELECT cantidad FROM detalle_pedido WHERE id_pedido = %s", (pedido[0],))
-    detalle = db_cursor.fetchone()
-    assert detalle[0] == 5  
+    assert audit_row is not None
+    assert audit_row[0] == cid
