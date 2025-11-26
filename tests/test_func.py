@@ -1,25 +1,27 @@
 import psycopg2
-import pytest
 
-@pytest.fixture
-def db():
+def test_function_basic():
     conn = psycopg2.connect(
-        host="localhost",
-        port="5432",
-        dbname="test_db",
-        user="postgres",
-        password="postgres"
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
     )
-    yield conn
-    conn.close()
-
-
-def test_function_example(db):
-    """
-    Ejemplo para función:
-    SELECT total_price(100, 3) => 300
-    """
-    cur = db.cursor()
-    cur.execute("SELECT total_price(100, 3);")
+    cur = conn.cursor()
+    cur.execute("SELECT mi_funcion(5);")
     result = cur.fetchone()[0]
-    assert result == 300
+    assert result == 25 
+
+def test_function_null_case():
+    conn = psycopg2.connect(
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT mi_funcion(NULL);")
+    result = cur.fetchone()[0]
+    assert result is None
