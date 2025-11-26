@@ -37,14 +37,16 @@ jobs:
         run: pip install -r requirements.txt
         
       - name: Esperar Conexión de PostgreSQL
-        # Este comando detiene la ejecución hasta que el servidor responde correctamente.
-        run: while ! pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done
+        run: |
+          PGPASSWORD=postgres while ! pg_isready -h localhost -p 5432 -U postgres -d defaultdb; do 
+            echo "Esperando por PostgreSQL..."
+            sleep 1
+          done
 
       - name: Crear la Base de Datos 'exercises'
         run: createdb -h localhost -U postgres exercises
 
       - name: Crear Estructuras de la BD
-        # NOTA: Usamos 01_create_schema.sql, si tu archivo se llama 01_create_tables.sql, cámbialo aquí.
         run: PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 01_create_schema.sql
 
       - name: Insertar Datos Iniciales
