@@ -30,3 +30,22 @@ CREATE TABLE auditoria_pedidos (
     fecha_pedido DATE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
+);
+-- Nodos: ciudades
+CREATE TABLE ciudades (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+-- Aristas: rutas entre ciudades
+CREATE TABLE rutas (
+    id_origen INT REFERENCES ciudades(id),
+    id_destino INT REFERENCES ciudades(id),
+    distancia_km INT,
+    PRIMARY KEY (id_origen, id_destino)
+);
