@@ -22,3 +22,35 @@ CREATE TABLE detalle_pedido (
     id_producto INT REFERENCES productos(id_producto),
     cantidad INT
 );
+
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
+);
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB
+);
+
+CREATE TABLE ciudades (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+CREATE TABLE rutas (
+    id_origen INT REFERENCES ciudades(id),
+    id_destino INT REFERENCES ciudades(id),
+    distancia_km INT,
+    PRIMARY KEY (id_origen, id_destino)
+);
+
+CREATE TABLE auditoria_pedidos (
+    id_auditoria SERIAL PRIMARY KEY,
+    id_cliente INT,
+    fecha_pedido DATE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
