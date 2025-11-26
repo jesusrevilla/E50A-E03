@@ -6,7 +6,7 @@ def test_total_gastado_cliente_calculo_correcto():
     conn = db_connection()
     cur = conn.cursor()
     
-    # C
+
     id_cliente_a_probar = 1
     total_esperado = Decimal('1251.00')
 
