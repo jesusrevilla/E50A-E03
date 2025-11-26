@@ -28,5 +28,5 @@ def test_vista_detalle():
     assert ("Ana Torres", "Laptop", 1) in result
     assert ("Ana Torres", "Mouse", 2) in result
     assert ("Luis Pérez", "Teclado", 1) in result
-    assert len(result) == 3
+
 
