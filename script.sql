@@ -1,4 +1,5 @@
 --Ejecicio 1
+
 CREATE VIEW vista_detalle_pedidos AS
 SELECT 
     clientes.nombre AS nombre_cliente,
