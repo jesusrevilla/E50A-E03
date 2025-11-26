@@ -1,29 +1,24 @@
 import psycopg2
-import pytest
+import json
 
-@pytest.fixture
-def db():
+def test_json_insert_and_select():
     conn = psycopg2.connect(
-        host="localhost",
-        port="5432",
-        dbname="test_db",
-        user="postgres",
-        password="postgres"
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
     )
-    yield conn
-    conn.close()
+    cur = conn.cursor()
 
+    data = {"os": "android", "ram": 8}
+    cur.execute(
+        "INSERT INTO devices(info) VALUES (%s) RETURNING id;",
+        (json.dumps(data),)
+    )
+    did = cur.fetchone()[0]
+    conn.commit()
 
-def test_json_field(db):
-    cur = db.cursor()
-    cur.execute("""
-        INSERT INTO clientes(data)
-        VALUES ('{"nombre": "Luis", "edad": 22}')
-        RETURNING id;
-    """)
-    pk = cur.fetchone()[0]
-    db.commit()
-
-    cur.execute("SELECT data->>'nombre' FROM clientes WHERE id=%s;", (pk,))
-    assert cur.fetchone()[0] == "Luis"
-
+    cur.execute("SELECT info->>'os' FROM devices WHERE id=%s;", (did,))
+    result = cur.fetchone()[0]
+    assert result == "android"
