@@ -4,7 +4,7 @@ FROM detalle_pedido d JOIN pedidos p ON d.id_pedido = p.id_pedido JOIN clientes 
 JOIN productos pr ON d.id_producto = pr.id_producto;
 
 CREATE OR REPLACE PROCEDURE registrar_pedido(id_cliente INTEGER,fecha DATE,id_producto INTEGER,cantidad INTEGER)
-LANGUAGE plpgsqlAS $$
+LANGUAGE plpgsql AS $$
 DECLARE
     pedido INTEGER;
 BEGIN
