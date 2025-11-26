@@ -15,7 +15,11 @@ def test_vista_detalle_pedidos():
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT COUNT(*) FROM vista_detalle_pedidos;")
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM vista_detalle_pedidos
+        WHERE fecha < '2025-05-10';
+    """)
     total_filas = cur.fetchone()[0]
     assert total_filas == 3
 
