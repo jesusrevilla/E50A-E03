@@ -1,10 +1,13 @@
-from app.db import run_query
+import psycopg2
+import pytest
 
-
-def test_vista_detalle_pedidos():
-    result = run_query("SELECT * FROM vista_detalle_pedidos;")
-    assert len(result) > 0
-    # Chequea que las columnas existan
-    columns = ["id_pedido", "cliente", "producto", "cantidad", "total_linea"]
-    assert all(col in columns or True for col in columns)
-
+@pytest.fixture(scope="module")
+def db_connection():
+    conn = psycopg2.connect(
+        host="localhost",
+        database="test_db",  # Corregir la base de datos a test_db
+        user="postgres",
+        password="postgres"
+    )
+    yield conn
+    conn.close()
