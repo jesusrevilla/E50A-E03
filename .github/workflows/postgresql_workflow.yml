@@ -56,24 +56,24 @@ jobs:
         
     - name: Run tests
       run: |
-        pytest -vv test/test_func.py
+        pytest -vv tests/test_func.py
 
     - name: Run tests
       run: |
-        pytest -vv test/test_grap.py
+        pytest -vv tests/test_grap.py
 
     - name: Run tests
       run: |
-        pytest -vv test/test_json.py
+        pytest -vv tests/test_json.py
 
     - name: Run tests
       run: |
-        pytest -vv test/test_store_proc.py
+        pytest -vv tests/test_store_proc.py
 
     - name: Run tests
       run: |
-        pytest -vv test/test_trigger.py
+        pytest -vv tests/test_trigger.py
 
     - name: Run tests
       run: |
-        pytest -vv test/test_view.py
+        pytest -vv tests/test_view.py
