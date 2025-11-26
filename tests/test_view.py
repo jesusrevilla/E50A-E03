@@ -5,7 +5,7 @@ import pytest
 def db_connection():
     conn = psycopg2.connect(
         host="localhost",
-        database="test_db",  
+        database="exercises",  
         user="postgres",
         password="postgres"
     )
