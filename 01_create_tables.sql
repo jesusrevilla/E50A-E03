@@ -25,6 +25,7 @@ CREATE TABLE detalle_pedido (
 );
 
 
+
 -- Tabla de auditoría
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
