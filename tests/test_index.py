@@ -7,6 +7,7 @@ class TestIndex:
         Prueba que el índice compuesto 'idx_cliente_producto' exista
         en la tabla 'detalle_pedido'.
         """
+        # Consulta el catálogo pg_indexes para verificar la existencia
         db_cursor.execute(
             "SELECT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_cliente_producto' AND tablename = 'detalle_pedido');"
         )
@@ -18,6 +19,7 @@ class TestIndex:
         Prueba que el índice 'idx_cliente_producto' sea compuesto y esté definido
         sobre las columnas 'id_pedido' e 'id_producto'.
         """
+        # Consulta el catálogo pg_attribute para obtener los nombres de las columnas del índice
         db_cursor.execute(
             """
             SELECT array_agg(a.attname ORDER BY array_position(i.indkey, a.attnum))
