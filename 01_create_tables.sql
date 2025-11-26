@@ -1,4 +1,7 @@
 
+DROP VIEW IF EXISTS vista_detalle_pedidos;
+
+-- Luego eliminar tablas en orden seguro
 DROP TABLE IF EXISTS auditoria_pedidos;
 DROP TABLE IF EXISTS detalle_pedido;
 DROP TABLE IF EXISTS pedidos;
@@ -10,7 +13,6 @@ DROP TABLE IF EXISTS usuarios;
 
 DROP TABLE IF EXISTS rutas;
 DROP TABLE IF EXISTS ciudades;
-
 
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
@@ -45,6 +47,7 @@ CREATE TABLE auditoria_pedidos (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE productos_json (
     id        SERIAL PRIMARY KEY,
     nombre    TEXT,
@@ -53,11 +56,12 @@ CREATE TABLE productos_json (
 
 
 CREATE TABLE usuarios (
-    id                 SERIAL PRIMARY KEY,
-    nombre             TEXT,
-    correo             TEXT,
+    id                  SERIAL PRIMARY KEY,
+    nombre              TEXT,
+    correo              TEXT,
     historial_actividad JSONB
 );
+
 
 CREATE TABLE ciudades (
     id     SERIAL PRIMARY KEY,
@@ -65,8 +69,8 @@ CREATE TABLE ciudades (
 );
 
 CREATE TABLE rutas (
-    id_origen     INT REFERENCES ciudades(id),
-    id_destino    INT REFERENCES ciudades(id),
-    distancia_km  INT,
+    id_origen    INT REFERENCES ciudades(id),
+    id_destino   INT REFERENCES ciudades(id),
+    distancia_km INT,
     PRIMARY KEY (id_origen, id_destino)
 );
