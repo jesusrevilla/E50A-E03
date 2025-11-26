@@ -44,7 +44,7 @@ jobs:
         run: |
           echo "Ejecutando scripts..."
           
-          for file in tests/*.sql; do
+          for file in *.sql; do
             echo "Ejecutando $file"
             psql postgresql://postgres:postgres@localhost:5432/testdb -f "$file"
           done
