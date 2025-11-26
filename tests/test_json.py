@@ -1,35 +1,82 @@
+import os
+from pathlib import Path
+
 import psycopg2
-import pytest
-import json
 
-DB_CONFIG = "dbname=tu_base_datos user=tu_usuario password=tu_password host=localhost"
 
-def test_json_attributes():
-    """
-    5. NoSQL: Valida consultas sobre campos JSONB.
-    1. Buscar producto por atributo 'marca' -> 'Dell'
-    2. Buscar usuario por elemento en array 'historial_actividad' -> 'inicio_sesion'
-    """
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "postgres"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
+
+
+def run_sql_file(cur, filename: str) -> None:
+    path = ROOT / filename
+    with path.open(encoding="utf-8") as f:
+        cur.execute(f.read())
+
+
+def init_db():
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(DB_CONFIG)
-        cur = conn.cursor()
-        
-        # Prueba 1: Atributo simple
-        cur.execute("SELECT nombre FROM productos_json WHERE atributos ->> 'marca' = 'Dell';")
-        prod = cur.fetchone()
-        assert prod is not None
-        assert prod[0] == 'Laptop'
-        
-        # Prueba 2: Array de objetos (búsqueda de contención @>)
-        cur.execute("SELECT count(*) FROM usuarios WHERE historial_actividad @> '[{\"accion\": \"inicio_sesion\"}]';")
-        count = cur.fetchone()[0]
-        assert count >= 2, "Debería haber al menos 2 usuarios que iniciaron sesión"
-        
-        print("✅ Test JSON: PASÓ")
+        run_sql_file(cur, "01_create_tables.sql")
+        run_sql_file(cur, "02_insert_data.sql")
+        run_sql_file(cur, "script.sql")
+    finally:
         cur.close()
         conn.close()
-    except Exception as e:
-        pytest.fail(f"Error en test_json: {e}")
 
-if __name__ == "__main__":
-    test_json_attributes()
+
+def test_productos_json_marca_dell():
+    init_db()
+
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT nombre
+            FROM productos_json
+            WHERE atributos ->> 'marca' = 'Dell';
+            """
+        )
+        rows = cur.fetchall()
+        assert len(rows) == 1
+        (nombre,) = rows[0]
+        assert nombre == "Laptop"
+    finally:
+        cur.close()
+        conn.close()
+
+
+def test_usuarios_con_inicio_sesion():
+    init_db()
+
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT nombre
+            FROM usuarios
+            WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+            """
+        )
+        rows = cur.fetchall()
+        nombres = sorted(r[0] for r in rows)
+        # De acuerdo a los INSERT de ejemplo:
+        assert nombres == ["Laura Gómez", "Pedro Ruiz"]
+    finally:
+        cur.close()
+        conn.close()
