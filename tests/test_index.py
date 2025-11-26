@@ -1,5 +1,5 @@
 import psycopg2
-from .conftest import db_connection # Asume configuración de conexión
+from .conftest import db_connection 
 
 def test_index_optimiza_consulta():
     """
