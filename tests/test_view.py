@@ -28,7 +28,6 @@ def execute_query(query, fetch=True):
 def test_vista_detalle_pedidos_existe_y_es_correcta():
     """Verifica que la vista devuelva la estructura y datos correctos."""
     
-    # 1. Verificar el número de registros (deberían ser 3)
     query_count = "SELECT COUNT(*) FROM vista_detalle_pedidos;"
     count_result = execute_query(query_count)
     assert count_result[0][0] == 3, "La vista debe retornar 3 líneas de pedido."
@@ -48,8 +47,7 @@ def test_vista_detalle_pedidos_existe_y_es_correcta():
     
     assert len(data_result) == 1, "Debe haber una línea para Laptop de Ana Torres."
     
-    # Validar que los valores sean correctos (Laptop: 1 * 1200.00 = 1200.00)
-    # Nota: Los valores DECIMAL se recuperan como objetos decimal.Decimal en Python
+    
     import decimal
     
     record = data_result[0]
