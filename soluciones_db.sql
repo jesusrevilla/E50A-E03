@@ -1,25 +1,3 @@
--- 1. Joins y Vistas
-
-CREATE VIEW vista_detalle_pedidos AS
-SELECT
-    c.nombre AS nombre_cliente,
-    p.nombre AS nombre_producto,
-    dp.cantidad,
-    (dp.cantidad * prod.precio) AS total_linea
-FROM
-    detalle_pedido dp
-JOIN
-    pedidos p ON dp.id_pedido = p.id_pedido
-JOIN
-    clientes c ON p.id_cliente = c.id_cliente
-JOIN
-    productos prod ON dp.id_producto = prod.id_producto;
-
-SELECT * FROM vista_detalle_pedidos;
-
----
--- 2. Procedimiento almacenado
-
 CREATE OR REPLACE PROCEDURE registrar_pedido(
     p_id_cliente INT,
     p_fecha DATE,
@@ -41,9 +19,6 @@ END;
 $$;
 
 CALL registrar_pedido(1, '2025-05-20', 2, 3);
-
----
--- 3. Función
 
 CREATE OR REPLACE FUNCTION total_gastado_por_cliente(
     p_id_cliente INT
@@ -73,9 +48,6 @@ SELECT total_gastado_por_cliente(1);
 
 CREATE INDEX idx_cliente_producto ON detalle_pedido (id_producto, id_pedido);
 
----
--- 4. Disparadores (Triggers)
-
 CREATE OR REPLACE FUNCTION auditar_nuevo_pedido()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -96,8 +68,10 @@ INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
 
 SELECT * FROM auditoria_pedidos;
 
----
--- 5. NoSQL (JSONB)
+SELECT * FROM vista_detalle_pedidos;
+
+SELECT * FROM productos_json
+WHERE atributos ->> 'marca' = 'Dell';
 
 SELECT nombre, correo
 FROM usuarios
@@ -110,9 +84,6 @@ FROM
     usuarios
 WHERE
     nombre = 'Laura Gómez';
-
----
--- 6. Grafos
 
 SELECT
     c_origen.nombre AS origen,
