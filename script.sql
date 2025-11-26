@@ -1,4 +1,4 @@
-/*---------------------------------------------1--------------------------------------------------------------*/
+--Ejecicio 1
 CREATE VIEW vista_detalle_pedidos AS
 SELECT 
     clientes.nombre AS nombre_cliente,
@@ -12,7 +12,7 @@ JOIN productos ON detalle_pedido.id_producto = productos.id_producto;
 
 SELECT * FROM vista_detalle_pedidos;
 
-/*---------------------------------------------2--------------------------------------------------------------*/
+--Ejercicio 2
 CREATE PROCEDURE registrar_pedido(
     cliente_id INTEGER,
     fecha_pedido DATE,
@@ -37,7 +37,7 @@ CALL registrar_pedido(1, '2025-05-20', 2, 3);
 
 SELECT * FROM pedidos;
 
-/*---------------------------------------------3--------------------------------------------------------------*/
+--Ejercicio 3
 
 CREATE FUNCTION total_gastado_por_cliente(cliente_id INTEGER)
 RETURNS DECIMAL(10, 2)
@@ -55,7 +55,7 @@ SELECT total_gastado_por_cliente(1);
 CREATE INDEX idx_cliente_producto
 ON detalle_pedido (id_pedido, id_producto);
 
-/*---------------------------------------------4--------------------------------------------------------------*/
+--Ejercicio 4
 
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
@@ -82,7 +82,7 @@ INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
 SELECT * FROM auditoria_pedidos;
 
 
-/*---------------------------------------------5--------------------------------------------------------------*/
+--Ejercicio 5
 
 CREATE TABLE productos_json (
     id SERIAL PRIMARY KEY,
@@ -106,12 +106,12 @@ CREATE TABLE usuarios (
 );
 
 INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
-('Alfredo De Alba', '177847@upslp.edu.mx', '[
+('Yovana Palencia', '174197@upslp.edu.mx', '[
     {"fecha": "2025-05-01", "accion": "inicio_sesion"},
     {"fecha": "2025-05-02", "accion": "subio_archivo"},
     {"fecha": "2025-05-03", "accion": "cerró_sesion"}
 ]'),
-('Alejandro Araujo', '177888@upslp.edu.mx', '[
+('Sebastiá Martínez', '174117@upslp.edu.mx', '[
     {"fecha": "2025-05-01", "accion": "inicio_sesion"},
     {"fecha": "2025-05-04", "accion": "comentó_publicación"},
     {"fecha": "2025-05-03", "accion": "cerró_sesion"}
@@ -126,7 +126,7 @@ FROM usuarios
 WHERE nombre = 'Alfredo De Alba';
 
 
-/*---------------------------------------------6-------------------------------------------------------------*/
+--Ejercicio 6
 
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
