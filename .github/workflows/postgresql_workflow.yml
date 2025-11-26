@@ -55,16 +55,14 @@ jobs:
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql  # Asegúrate de que este archivo crea las tablas
 
    
-    - name: Insert test data
+    - name: Insert data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql  # Archivos con datos de prueba
-
-    
-    - name: Query data to check
+        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql        
+    - name: Query data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_retrieve_everything_from_a_table.sql  # Verificación opcional
-
-   
+        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_generar.sql
+        
     - name: Run tests
       run: |
-        pytest  # Ejecutar las pruebas con pytest
