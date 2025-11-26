@@ -16,8 +16,8 @@ def test_view_detalle_pedidos():
     cur.execute("SELECT * FROM vista_detalle_pedidos ORDER BY id_pedido, producto;")
     rows = cur.fetchall()
 
-  #Se evaluan 3 lineas
-    assert len(rows) == 3
+  #Se evaluan 5 lineas
+    assert len(rows) == 5
 
   # Ve una línea
     # Pedido 1 Laptop
