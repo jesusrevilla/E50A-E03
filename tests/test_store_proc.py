@@ -1,35 +1,33 @@
+import os
 import psycopg2
 
-from .conftest import db_connection 
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "test_db"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
 
-def test_registrar_pedido_exitoso():
-    conn = db_connection()
+def test_registrar_pedido_crea_pedido_y_detalle():
+    conn = get_connection()
+    conn.autocommit = True
     cur = conn.cursor()
-    
-    id_cliente_prueba = 1
-    fecha_prueba = '2025-12-01'
-    id_producto_prueba = 2  
-    cantidad_prueba = 5
 
-    cur.execute(f"SELECT registrar_pedido({id_cliente_prueba}, '{fecha_prueba}', {id_producto_prueba}, {cantidad_prueba});")
-    
-    
-    cur.execute("SELECT id_pedido, id_cliente, fecha FROM pedidos ORDER BY id_pedido DESC LIMIT 1;")
-    new_pedido = cur.fetchone()
-    
-    assert new_pedido is not None
-    assert new_pedido[1] == id_cliente_prueba 
+    cur.execute("CALL registrar_pedido(1, '2025-05-20', 2, 3);")
 
-    new_pedido_id = new_pedido[0]
+    cur.execute("""
+        SELECT p.id_pedido
+        FROM pedidos p
+        JOIN detalle_pedido d ON d.id_pedido = p.id_pedido
+        WHERE p.id_cliente = 1
+          AND p.fecha = '2025-05-20'
+          AND d.id_producto = 2
+          AND d.cantidad = 3;
+    """)
+    row = cur.fetchone()
+    assert row is not None
 
-   
-    cur.execute("SELECT id_producto, cantidad FROM detalle_pedido WHERE id_pedido = %s;", (new_pedido_id,))
-    detalle = cur.fetchone()
-    
-    assert detalle is not None
-    assert detalle[0] == id_producto_prueba
-    assert detalle[1] == cantidad_prueba
-
-    conn.rollback() # Revertir cambios después de la prueba
     cur.close()
     conn.close()
