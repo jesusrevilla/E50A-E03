@@ -9,3 +9,44 @@ JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
 JOIN clientes c ON ped.id_cliente = c.id_cliente
 JOIN productos p ON dp.id_producto = p.id_producto;
 
+CREATE OR REPLACE PROCEDURE registrar_pedido(
+    p_id_cliente INT,
+    p_fecha DATE,
+    p_id_producto INT,
+    p_cantidad INT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_pedido INT;
+BEGIN
+    
+    INSERT INTO pedidos (id_cliente, fecha) 
+    VALUES (p_id_cliente, p_fecha) 
+    RETURNING id_pedido INTO v_id_pedido;
+
+    INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad)
+    VALUES (v_id_pedido, p_id_producto, p_cantidad);
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT) 
+RETURNS DECIMAL(10,2)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_total DECIMAL(10,2);
+BEGIN
+    SELECT SUM(dp.cantidad * p.precio)
+    INTO v_total
+    FROM detalle_pedido dp
+    JOIN productos p ON dp.id_producto = p.id_producto
+    JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
+    WHERE ped.id_cliente = p_id_cliente;
+    
+    RETURN COALESCE(v_total, 0); 
+END;
+$$;
+
+CREATE INDEX idx_cliente_producto ON detalle_pedido(id_pedido, id_producto);
+
