@@ -1,14 +1,13 @@
 import psycopg2
 import pytest
 
-# Configuración de conexión (ajústala si usas conftest.py)
 DB_HOST = "localhost"
 DB_NAME = "test_db"
 DB_USER = "postgres"
 DB_PASS = "postgres"
 
 def execute_query(query, fetch=True):
-    # Función auxiliar para ejecutar consultas
+    
     conn = None
     try:
         conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
@@ -39,5 +38,5 @@ def test_index_cliente_producto_existe():
     
     result = execute_query(query)
     
-    # Si el resultado no está vacío, el índice existe
+    # Si el resultado no está vacío
     assert len(result) == 1, "El índice compuesto 'idx_cliente_producto' no fue encontrado."
