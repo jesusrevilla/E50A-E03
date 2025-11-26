@@ -23,3 +23,16 @@ CREATE TABLE detalle_pedido (
     id_producto INT REFERENCES productos(id_producto),
     cantidad INT
 );
+
+CREATE TABLE rutas (
+    id SERIAL PRIMARY KEY,
+    id_origen INT,
+    id_destino INT,
+    distancia INT
+);
+
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    atributos JSONB
+);
+
