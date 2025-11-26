@@ -1,42 +1,52 @@
 
--- INSERCIÓN DE DATOS EN LA TABLA Cliente
-INSERT INTO Cliente (id_cliente, nombre, apellido, email, telefono, direccion) VALUES
-(1, 'Ana', 'García', 'ana.garcia@mail.com', '5512345678', 'Av. Reforma 101, CDMX'),
-(2, 'Luis', 'Martínez', 'luis.mtz@mail.com', '5587654321', 'Calle Sol 25, Guadalajara'),
-(3, 'Sofía', 'Rodríguez', 'sofia.rodriguez@mail.com', '3344556677', 'Paseo de la Luna 8, Monterrey');
+-- Insertar datos de ejemplo
+-- Clientes
+INSERT INTO clientes (nombre, correo) VALUES
+('Ana Torres', 'ana@example.com'),
+('Luis Pérez', 'luis@example.com');
 
--- INSERCIÓN DE DATOS EN LA TABLA Destino
-INSERT INTO Destino (id_destino, nombre_ciudad, nombre_pais, descripcion) VALUES
-(101, 'París', 'Francia', 'La Ciudad de la Luz, famosa por la Torre Eiffel y el arte.'),
-(102, 'Tokio', 'Japón', 'Metrópolis vibrante con templos ancestrales y tecnología de punta.'),
-(103, 'Cancún', 'México', 'Playas de arena blanca y aguas turquesas del Caribe.');
+-- Productos
+INSERT INTO productos (nombre, precio) VALUES
+('Laptop', 1200.00),
+('Mouse', 25.50),
+('Teclado', 45.00);
 
--- INSERCIÓN DE DATOS EN LA TABLA Paquete_Turistico
-INSERT INTO Paquete_Turistico (id_paquete, nombre_paquete, descripcion, duracion_dias, precio, id_destino) VALUES
-(201, 'Escapada Romántica', 'Tour por los museos y cena en la Torre Eiffel.', 5, 1200.50, 101),
-(202, 'Aventura Tecnológica', 'Recorrido por Akihabara, Shibuya y el Monte Fuji.', 7, 2500.00, 102),
-(203, 'Relax Caribeño', 'Todo incluido en resort frente al mar.', 4, 850.75, 103);
+-- Pedidos
+INSERT INTO pedidos (id_cliente, fecha) VALUES
+(1, '2025-05-01'),
+(2, '2025-05-02');
 
--- INSERCIÓN DE DATOS EN LA TABLA Empleado
-INSERT INTO Empleado (id_empleado, nombre, apellido, puesto, fecha_contratacion, salario) VALUES
-(301, 'Javier', 'Pérez', 'Agente de Ventas', '2022-03-15', 18000.00),
-(302, 'Elena', 'Sánchez', 'Gerente de Reservas', '2021-08-20', 25000.00);
+-- Detalle de pedidos
+INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
+(1, 1, 1),
+(1, 2, 2),
+(2, 3, 1);
 
--- INSERCIÓN DE DATOS EN LA TABLA Reserva
-INSERT INTO Reserva (id_reserva, id_cliente, id_paquete, id_empleado, fecha_reserva, estado_reserva, monto_total) VALUES
-(401, 1, 201, 301, '2023-11-20', 'Confirmada', 1200.50),
-(402, 2, 202, 302, '2023-11-22', 'Pendiente', 2500.00),
-(403, 3, 203, 301, '2023-11-24', 'Confirmada', 850.75);
+-- JSON products
+INSERT INTO productos_json (nombre, atributos) VALUES
+('Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}'),
+('Smartphone', '{"marca": "Samsung", "pantalla": "6.5 pulgadas", "almacenamiento": "128GB"}'),
+('Tablet', '{"marca": "Apple", "modelo": "iPad Air", "color": "gris"}');
 
--- INSERCIÓN DE DATOS EN LA TABLA Transporte
-INSERT INTO Transporte (id_transporte, tipo, nombre_proveedor, costo) VALUES
-(501, 'Vuelo', 'AeroViajes', 400.00),
-(502, 'Tren', 'RailEurope', 150.00),
-(503, 'Bus', 'ADO', 50.00);
+-- Usuarios con historial JSONB
+INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
+('Laura Gómez', 'laura@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-02", "accion": "subio_archivo"},
+    {"fecha": "2025-05-03", "accion": "cerró_sesion"}
+]'),
+('Pedro Ruiz', 'pedro@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-04", "accion": "comentó_publicación"}
+]');
 
--- INSERCIÓN DE DATOS EN LA TABLA Paquete_Transporte
-INSERT INTO Paquete_Transporte (id_paquete, id_transporte) VALUES
-(201, 501), -- Escapada Romántica usa Vuelo
-(201, 502), -- Escapada Romántica usa Tren
-(202, 501), -- Aventura Tecnológica usa Vuelo
-(203, 501); -- Relax Caribeño usa Vuelo
+-- Ciudades y rutas (grafo)
+INSERT INTO ciudades (nombre) VALUES
+('San Luis Potosí'), ('Querétaro'), ('Guadalajara'), ('Monterrey'), ('CDMX');
+
+INSERT INTO rutas (id_origen, id_destino, distancia_km) VALUES
+(1, 2, 180),
+(2, 3, 350),
+(1, 5, 410),
+(5, 4, 900),
+(3, 4, 700);
