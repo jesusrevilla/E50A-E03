@@ -50,3 +50,17 @@ $$;
 
 CREATE INDEX idx_cliente_producto ON detalle_pedido(id_pedido, id_producto);
 
+CREATE OR REPLACE FUNCTION registrar_auditoria_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido)
+    VALUES (NEW.id_cliente, NEW.fecha);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_auditoria_pedido
+AFTER INSERT ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION registrar_auditoria_pedido();
+
