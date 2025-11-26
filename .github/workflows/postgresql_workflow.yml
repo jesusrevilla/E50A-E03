@@ -16,14 +16,14 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: defaultdb # Se utiliza 'defaultdb' aquí, y se crea 'exercises' después
+          POSTGRES_DB: defaultdb
         ports:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
+          --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
     steps:
       - uses: actions/checkout@v4
@@ -35,15 +35,16 @@ jobs:
 
       - name: Instalar Dependencias
         run: pip install -r requirements.txt
-
-      - name: Esperar por PostgreSQL
+        
+      - name: Esperar Conexión de PostgreSQL
+        # Este comando detiene la ejecución hasta que el servidor responde correctamente.
         run: while ! pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done
 
-      
       - name: Crear la Base de Datos 'exercises'
         run: createdb -h localhost -U postgres exercises
 
       - name: Crear Estructuras de la BD
+        # NOTA: Usamos 01_create_schema.sql, si tu archivo se llama 01_create_tables.sql, cámbialo aquí.
         run: PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 01_create_schema.sql
 
       - name: Insertar Datos Iniciales
