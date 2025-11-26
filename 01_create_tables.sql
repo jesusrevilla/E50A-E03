@@ -1,4 +1,4 @@
--- Clientes, productos, pedidos, detalle_pedido
+-- Clientes, productos, pedidos, detalle_pedid
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
