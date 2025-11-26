@@ -1,4 +1,6 @@
 
+-- 1 Tablas Relacionales 
+
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
@@ -24,13 +26,19 @@ CREATE TABLE detalle_pedido (
     cantidad INT
 );
 
--- Tabla de auditoría
+-- Tabla para el Trigger 
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
     id_cliente INT,
     fecha_pedido DATE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Indice solicitado 
+CREATE INDEX idx_cliente_producto ON detalle_pedido(id_pedido, id_producto);
+
+
+-- 2 Tablas NoSQL , JSON 
 
 CREATE TABLE productos_json (
     id SERIAL PRIMARY KEY,
@@ -45,13 +53,14 @@ CREATE TABLE usuarios (
     historial_actividad JSONB
 );
 
--- Nodos: ciudades
+
+-- 3 Tablas Grafos 
+
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
     nombre TEXT NOT NULL
 );
 
--- Aristas: rutas entre ciudades
 CREATE TABLE rutas (
     id_origen INT REFERENCES ciudades(id),
     id_destino INT REFERENCES ciudades(id),
