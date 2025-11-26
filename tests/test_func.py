@@ -1,13 +1,12 @@
 import psycopg2
 import pytest
 
-# Fixture para establecer la conexión a la DB
 @pytest.fixture(scope="module")
 def db_connection():
-    # Los detalles de la conexión coinciden con el YAML de GitHub Actions
+    
     conn = psycopg2.connect(
         host="localhost",
-        database="test_db",  # Corregir la base de datos a test_db
+        database="test_db", 
         user="postgres",
         password="postgres"
     )
