@@ -1,14 +1,13 @@
 import psycopg2
 import pytest
 
-# Configuración de conexión (ajústala si usas conftest.py)
 DB_HOST = "localhost"
 DB_NAME = "test_db"
 DB_USER = "postgres"
 DB_PASS = "postgres"
 
 def execute_query(query, fetch=True):
-    # Función auxiliar para ejecutar consultas
+
     conn = None
     try:
         conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
@@ -53,7 +52,6 @@ def test_consulta_usuarios_por_accion_jsonb():
     
     result = execute_query(query)
     
-    # Esperamos 'Laura Gómez' y 'Pedro Ruiz'
     expected_users = [('Laura Gómez',), ('Pedro Ruiz',)]
     
     assert len(result) == 2, "Deben retornar 2 usuarios con la acción 'inicio_sesion'."
