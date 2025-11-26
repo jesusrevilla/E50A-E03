@@ -1,6 +1,7 @@
+-- Crear DB exercises si no existe (esto debe ir FUERA de transacciones)
 SELECT 'CREATE DATABASE exercises'
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'exercises')
-\gexec;
+\gexec
 
 
 -- =========================================================
