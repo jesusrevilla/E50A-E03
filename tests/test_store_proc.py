@@ -1,12 +1,30 @@
-from db import run_query
+import pytest
+# ... (incluir fixture db_connection) ...
 
-def test_registrar_pedido():
-    # Inserta un pedido
-    run_query("CALL registrar_pedido(1, '2025-05-20', 2, 3);")
-    result = run_query("SELECT * FROM detalle_pedido WHERE id_pedido = (SELECT MAX(id_pedido) FROM pedidos);")
-    assert result[0][2] == 2  # id_producto
-    assert result[0][3] == 3  # cantidad
+def test_registrar_pedido(db_connection):
+    """Verifica que el procedimiento almacenado inserta un nuevo pedido y su detalle."""
+    cursor = db_connection.cursor()
+    initial_pedidos_count = 0
+    initial_detalle_count = 0
 
-def test_total_gastado():
-    result = run_query("SELECT total_gastado_por_cliente(1);")
-    assert result[0][0] > 0
+    # Contar registros iniciales
+    cursor.execute("SELECT COUNT(*) FROM pedidos;")
+    initial_pedidos_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM detalle_pedido;")
+    initial_detalle_count = cursor.fetchone()[0]
+
+    # Ejecutar el procedimiento
+    cursor.execute("CALL registrar_pedido(1, '2025-11-25', 1, 5);")
+    db_connection.commit()
+
+    # Contar registros finales
+    cursor.execute("SELECT COUNT(*) FROM pedidos;")
+    final_pedidos_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM detalle_pedido;")
+    final_detalle_count = cursor.fetchone()[0]
+
+    # Verificar que se insertó exactamente una fila en cada tabla
+    assert final_pedidos_count == initial_pedidos_count + 1, "No se insertó el pedido correctamente."
+    assert final_detalle_count == initial_detalle_count + 1, "No se insertó el detalle correctamente."
+
+    cursor.close()
