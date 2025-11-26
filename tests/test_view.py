@@ -16,7 +16,6 @@ def run_query(query):
             return cur.fetchall()
 
 def test_vista_detalle_pedidos():
-    """La vista 'vista_detalle_pedidos' debe devolver los resultados correctos."""
     query = """
         SELECT * FROM vista_detalle_pedidos;
     """
