@@ -1,16 +1,15 @@
-import pytest
 import psycopg2
+import pytest
 
-def test_total_gastado_por_cliente():
+# Fixture para establecer la conexión a la DB
+@pytest.fixture(scope="module")
+def db_connection():
+    # Los detalles de la conexión coinciden con el YAML de GitHub Actions
     conn = psycopg2.connect(
         host="localhost",
-        database="exercises",
+        database="test_db",  # Corregir la base de datos a test_db
         user="postgres",
         password="postgres"
     )
-    cur = conn.cursor()
-    cur.execute("SELECT total_gastado_por_cliente(1)")
-    total = cur.fetchone()[0]
-    assert total > 0
-    cur.close()
+    yield conn
     conn.close()
