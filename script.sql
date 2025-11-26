@@ -11,7 +11,7 @@ JOIN clientes c ON p.id_cliente = c.id_cliente
 JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
 JOIN productos pr ON dp.id_producto = pr.id_producto;
 
--- 2. PROCEDIMIENTO ALMACENADO
+-- 2. PROCEDIMIENTO ALMACENAD
 CREATE OR REPLACE PROCEDURE registrar_pedido(
     p_id_cliente INT,
     p_fecha DATE,
@@ -30,7 +30,6 @@ BEGIN
     INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad)
     VALUES (v_id_pedido, p_id_producto, p_cantidad);
     
-    COMMIT;
 END;
 $$;
 
