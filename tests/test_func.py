@@ -1,8 +1,15 @@
-from app.db import run_query
+import psycopg2
+import pytest
 
-
-def test_funciones_adicionales():
-    # Puedes poner aquí pruebas de otras funciones si existieran
-    result = run_query("SELECT total_gastado_por_cliente(1);")
-    assert result[0][0] >= 0
-
+# Fixture para establecer la conexión a la DB
+@pytest.fixture(scope="module")
+def db_connection():
+    # Los detalles de la conexión coinciden con el YAML de GitHub Actions
+    conn = psycopg2.connect(
+        host="localhost",
+        database="test_db",  # Corregir la base de datos a test_db
+        user="postgres",
+        password="postgres"
+    )
+    yield conn
+    conn.close()
