@@ -1,4 +1,5 @@
-from db import run_query
+from app.db import run_query
+
 
 def test_funciones_adicionales():
     # Puedes poner aquí pruebas de otras funciones si existieran
