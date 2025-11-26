@@ -1,4 +1,4 @@
--- Clientes
+-- clientes
 INSERT INTO clientes (nombre, correo) VALUES
 ('Ana Torres', 'ana@example.com'),
 ('Luis Pérez', 'luis@example.com');
