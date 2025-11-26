@@ -17,7 +17,7 @@ $$;
 
 CALL registrar_pedido(1, '2025-05-20', 2, 3);
 
-CREATE OR REPLACE FUNCTION total_gastado_por_cliente(id_cliente INTEGER)
+CREATE OR REPLACE FUNCTION total_gastado_por_cliente(ped_id_cliente INTEGER)
 RETURNS NUMERIC(10,2) AS $$
 DECLARE
     total INTEGER;
@@ -25,7 +25,7 @@ BEGIN
     SELECT COALESCE(SUM(pr.precio * d.cantidad), 0)
     INTO total FROM pedidos p
     JOIN detalle_pedido d ON p.id_pedido = d.id_pedido JOIN productos pr ON d.id_producto = pr.id_producto
-    WHERE p.id_cliente = id_cliente;
+    WHERE p.id_cliente = ped_id_cliente;
 
     RETURN total;
 END;
