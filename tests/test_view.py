@@ -1,24 +1,32 @@
 import psycopg2
-import pytest
 
-@pytest.fixture
-def db():
+def test_view_select():
     conn = psycopg2.connect(
-        host="localhost",
-        dbname="test_db",
-        user="postgres",
-        password="postgres"
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
     )
-    yield conn
-    conn.close()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM vista_clientes LIMIT 1;")
+    row = cur.fetchone()
+    assert row is not None
 
 
-def test_view_exists(db):
-    cur = db.cursor()
-    cur.execute("""
-        SELECT * FROM vista_detalle_pedidos LIMIT 1;
-    """)
-    rows = cur.fetchall()
+def test_view_logic():
+    conn = psycopg2.connect(
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
+    )
+    cur = conn.cursor()
 
-    assert isinstance(rows, list)
+    cur.execute("SELECT total FROM vista_ventas WHERE id_cliente = 1;")
+    result = cur.fetchone()
+    assert result is not None
+
 
