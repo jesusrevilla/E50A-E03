@@ -1,25 +1,37 @@
+import os
 import psycopg2
-from .conftest import db_connection 
 
-def test_rutas_desde_san_luis_potosi():
-    """Verifica que todas las rutas desde SLP estén registradas."""
-    conn = db_connection()
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "test_db"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
+
+def test_rutas_desde_slp():
+    conn = get_connection()
     cur = conn.cursor()
-    
-    query = """
-    SELECT c_destino.nombre
-    FROM rutas r
-    JOIN ciudades c_origen ON r.id_origen = c_origen.id
-    JOIN ciudades c_destino ON r.id_destino = c_destino.id
-    WHERE c_origen.nombre = 'San Luis Potosí';
-    """
-    cur.execute(query)
-    resultados = [row[0] for row in cur.fetchall()]
-    
-    rutas_esperadas = {'Querétaro', 'CDMX'}
-    
-    assert set(resultados) == rutas_esperadas
-    assert len(resultados) == 2
-    
+
+    cur.execute("""
+        SELECT c1.nombre AS origen, c2.nombre AS destino, r.distancia_km
+        FROM rutas r
+        JOIN ciudades c1 ON c1.id = r.id_origen
+        JOIN ciudades c2 ON c2.id = r.id_destino
+        WHERE c1.nombre = 'San Luis Potosí'
+        ORDER BY destino;
+    """)
+
+    rows = cur.fetchall()
+    destinos = [r[1] for r in rows]
+    distancias = [r[2] for r in rows]
+
+    assert len(rows) == 2
+    assert 'Querétaro' in destinos
+    assert 'CDMX' in destinos
+    assert 180 in distancias
+    assert 410 in distancias
+
     cur.close()
     conn.close()
