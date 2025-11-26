@@ -25,7 +25,8 @@ RETURNS DECIMAL AS $$
 DECLARE
     total DECIMAL := 0;
 BEGIN
-    SELECT SUM(p.precio * dp.cantidad)
+    -- La consulta original tenía un error al referirse a p.precio, debe ser pr.precio
+    SELECT SUM(pr.precio * dp.cantidad)  -- Corregido para usar pr.precio
     INTO total
     FROM pedidos p
     JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
