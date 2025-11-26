@@ -19,8 +19,6 @@ class TestGrafo:
         db_cursor.execute("SELECT destino, distancia_km FROM get_rutas_desde_ciudad('San Luis Potosí');")
         rutas = db_cursor.fetchall()
         
-        # SLP → Querétaro (180)
-        # SLP → CDMX (410)
         expected_rutas = [
             ('Querétaro', 180),
             ('CDMX', 410)
