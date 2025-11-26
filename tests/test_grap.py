@@ -1,22 +1,29 @@
 import pytest
-import psycopg2
 
-def test_rutas_ciudades():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="exercises",
-        user="postgres",
-        password="postgres"
-    )
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT c1.nombre as origen, c2.nombre as destino, r.distancia_km
-        FROM rutas r
-        JOIN ciudades c1 ON r.id_origen = c1.id
-        JOIN ciudades c2 ON r.id_destino = c2.id
-        WHERE c1.nombre = 'San Luis Potosí'
+
+def test_grafo_rutas_desde_slp(db_connection):
+    """Verifica la consulta de rutas de grafo desde San Luis Potosí."""
+    cursor = db_connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            destino.nombre
+        FROM
+            rutas r
+        JOIN
+            ciudades origen ON r.id_origen = origen.id
+        JOIN
+            ciudades destino ON r.id_destino = destino.id
+        WHERE
+            origen.nombre = 'San Luis Potosí';
     """)
-    results = cur.fetchall()
-    assert len(results) >= 2
-    cur.close()
-    conn.close()
+
+    results = cursor.fetchall()
+    destinos = sorted([r[0] for r in results])
+
+
+    expected_destinations = ['CDMX', 'Querétaro']
+
+    assert destinos == expected_destinations, "La consulta de grafo no devolvió los destinos correctos."
+
+    cursor.close()
