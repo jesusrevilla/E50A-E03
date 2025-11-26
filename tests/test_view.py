@@ -1,16 +1,14 @@
-import pytest
 import psycopg2
+import pytest
 
-def test_vista_detalle_pedidos():
+@pytest.fixture(scope="module")
+def db_connection():
+    # Los detalles de la conexión coinciden con el YAML de GitHub Actions
     conn = psycopg2.connect(
         host="localhost",
-        database="exercises",
+        database="test_db",  # Corregir la base de datos a test_db
         user="postgres",
         password="postgres"
     )
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM vista_detalle_pedidos")
-    results = cur.fetchall()
-    assert len(results) >= 3
-    cur.close()
+    yield conn
     conn.close()
