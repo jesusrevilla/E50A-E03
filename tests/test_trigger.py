@@ -5,6 +5,44 @@ import subprocess
 import pytest
 
 
+# Tokens típicos que psql imprime como "command status" y estorban a los asserts
+_PSQL_STATUS_TOKENS = {
+    "BEGIN", "COMMIT", "ROLLBACK",
+    "INSERT", "UPDATE", "DELETE",
+    "CALL", "DO",
+    "CREATE", "DROP", "ALTER", "TRUNCATE",
+    "GRANT", "REVOKE", "SET",
+}
+
+
+def _clean_psql_lines(stdout: str) -> list[str]:
+    """
+    psql (incluso con -At) puede imprimir:
+      - BEGIN / ROLLBACK
+      - CALL
+      - INSERT 0 1
+      - NOTICE/WARNING
+    Esta función deja SOLO líneas útiles (resultados de SELECT).
+    """
+    lines: list[str] = []
+    for raw in stdout.splitlines():
+        s = raw.strip()
+        if not s:
+            continue
+
+        # Mensajes
+        if s.startswith(("NOTICE:", "WARNING:")):
+            continue
+
+        # Status lines (BEGIN, INSERT 0 1, CALL, etc.)
+        first = s.split()[0]
+        if first in _PSQL_STATUS_TOKENS:
+            continue
+
+        lines.append(s)
+    return lines
+
+
 def _run_psql(sql: str, db: str) -> list[str]:
     env = os.environ.copy()
     env.setdefault("PGHOST", "localhost")
@@ -16,12 +54,13 @@ def _run_psql(sql: str, db: str) -> list[str]:
         "-h", env["PGHOST"],
         "-U", env["PGUSER"],
         "-d", db,
-        "-At",
+        "-q",          # quiet (reduce banners / extra output)
+        "-At",         # unaligned + tuples only (pero aun así salen status lines)
         "-F", "\t",
         "-c", sql,
     ]
     out = subprocess.check_output(cmd, env=env, stderr=subprocess.STDOUT, text=True)
-    return [line for line in out.splitlines() if line.strip() != ""]
+    return _clean_psql_lines(out)
 
 
 def psql(sql: str) -> list[str]:
@@ -33,7 +72,6 @@ def psql(sql: str) -> list[str]:
 
 
 def test_auditoria_table_exists():
-    # Tabla auditoria_pedidos requerida en README. :contentReference[oaicite:8]{index=8}
     r = psql("""
       SELECT COUNT(*)
       FROM information_schema.tables
@@ -43,7 +81,6 @@ def test_auditoria_table_exists():
 
 
 def test_trigger_exists_on_pedidos():
-    # Debe existir trigger para capturar inserts en pedidos (README). :contentReference[oaicite:9]{index=9}
     r = psql("""
       SELECT COUNT(*)
       FROM pg_trigger
@@ -54,7 +91,6 @@ def test_trigger_exists_on_pedidos():
 
 
 def test_trigger_inserts_audit_row():
-    # Probamos el ejemplo del README dentro de transacción.
     out = psql("""
       BEGIN;
 
@@ -71,11 +107,6 @@ def test_trigger_inserts_audit_row():
 
       ROLLBACK;
     """)
-
-    # --- FIX START ---
-    # Filter out transaction messages
-    out = [line for line in out if line not in ('BEGIN', 'COMMIT', 'ROLLBACK')]
-    # --- FIX END ---
 
     assert len(out) >= 3, f"Salida inesperada: {out}"
 
