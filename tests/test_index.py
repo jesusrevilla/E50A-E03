@@ -1,27 +1,36 @@
 import psycopg2
-import pytest
 
-@pytest.fixture
-def db():
+def test_index_exists():
     conn = psycopg2.connect(
-        host="localhost",
-        dbname="test_db",
-        user="postgres",
-        password="postgres"
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
     )
-    yield conn
-    conn.close()
+    cur = conn.cursor()
 
-
-def test_index_exists(db):
-    """
-    Reemplaza productos_nombre_idx por el nombre real
-    """
-    cur = db.cursor()
     cur.execute("""
         SELECT indexname
         FROM pg_indexes
-        WHERE indexname='productos_nombre_idx';
+        WHERE tablename = 'clientes';
     """)
-    assert cur.fetchone() is not None
+    indexes = [r[0] for r in cur.fetchall()]
 
+    assert 'idx_clientes_nombre' in indexes
+
+
+def test_index_used_in_query():
+    conn = psycopg2.connect(
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
+    )
+    cur = conn.cursor()
+
+    cur.execute("EXPLAIN SELECT * FROM clientes WHERE nombre = 'juan';")
+    plan = "\n".join(row[0] for row in cur.fetchall())
+
+    assert "Index Scan" in plan or "Bitmap Index Scan" in plan
