@@ -21,3 +21,4 @@ CREATE TABLE rutas (
     id_destino INT REFERENCES ciudades(id),
     distancia_km INT
 );
+-- Moreno Adian
