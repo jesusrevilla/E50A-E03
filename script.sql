@@ -10,3 +10,52 @@ FROM detalle_pedido d
 JOIN pedidos p ON d.id_pedido = p.id_pedido
 JOIN clientes c ON p.id_cliente = c.id_cliente
 JOIN productos pr ON d.id_producto = pr.id_producto;
+
+CREATE OR REPLACE PROCEDURE registrar_pedido(id_cliente INTEGER,fecha DATE,id_producto INTEGER,cantidad INTEGER)
+LANGUAGE plpgsqlAS $$
+DECLARE
+    pedido INTEGER;
+BEGIN
+    INSERT INTO pedidos (id_cliente, fecha) VALUES (id_cliente, fecha)
+    RETURNING id_pedido INTO pedido;
+
+    INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES (pedido, id_producto, cantidad);
+END;
+$$;
+
+CALL registrar_pedido(1, '2025-05-20', 2, 3);
+
+CREATE OR REPLACE FUNCTION total_gastado_por_cliente(id_cliente INTEGER)
+RETURNS NUMERIC(10,2) AS $$
+DECLARE
+    total INTEGER;
+BEGIN
+    SELECT COALESCE(SUM(pr.precio * d.cantidad), 0)
+    INTO total FROM pedidos p
+    JOIN detalle_pedido d ON p.id_pedido = d.id_pedido JOIN productos pr ON d.id_producto = pr.id_producto
+    WHERE p.id_cliente = p_id_cliente;
+
+    RETURN total;
+END;
+$$ LANGUAGE plpgsql;
+CREATE INDEX idx_cliente_producto ON detalle_pedido(id_producto,id_pedido);
+
+CREATE OR REPLACE FUNCTION registrar_auditoria()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido)
+    VALUES (NEW.id_cliente, NEW.fecha);
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_auditoria_pedido AFTER INSERT ON pedidos
+FOR EACH ROW EXECUTE FUNCTION registrar_auditoria();
+
+-- Insertar un nuevo pedido
+INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
+
+-- Verificar la auditoría
+SELECT * FROM auditoria_pedidos;
