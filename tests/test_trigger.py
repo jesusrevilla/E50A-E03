@@ -8,7 +8,7 @@ def test_trigger_auditoria():
     cursor.execute("INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');")
     conn.commit()
     
-    # Verificar si el trigger insertó un registro en la auditoría
+    # Verificar si el trigger registró el pedido en la auditoría
     cursor.execute("SELECT * FROM auditoria_pedidos WHERE id_cliente = 1 AND fecha_pedido = '2025-05-20';")
     audit_entry = cursor.fetchone()
     assert audit_entry is not None, "El trigger de auditoría no se activó correctamente."
