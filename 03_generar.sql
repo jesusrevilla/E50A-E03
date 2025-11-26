@@ -60,7 +60,7 @@ $$;
 SELECT total_gastado_por_cliente(1);
 
 -- Indice
-CREATE INDEX idx_pedido_producto ON detalle_pedido (id_pedido, id_producto);
+CREATE INDEX idx_cliente_producto ON detalle_pedido (id_pedido, id_producto);
 
 -- Funcion Trigger
 CREATE OR REPLACE FUNCTION fn_auditoria_pedido()
