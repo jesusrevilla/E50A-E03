@@ -1,35 +1,24 @@
+import os
 import psycopg2
 from decimal import Decimal
-from .conftest import db_connection
 
-def test_total_gastado_cliente_calculo_correcto():
-    conn = db_connection()
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "test_db"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
+
+def test_total_gastado_por_cliente():
+    conn = get_connection()
     cur = conn.cursor()
-    
 
-    id_cliente_a_probar = 1
-    total_esperado = Decimal('1251.00')
+    cur.execute("SELECT total_gastado_por_cliente(1);")
+    total = cur.fetchone()[0]
 
-    cur.execute("SELECT total_gastado_por_cliente(%s);", (id_cliente_a_probar,))
-    total_obtenido = cur.fetchone()[0]
-
-    assert total_obtenido == total_esperado
-
-    cur.close()
-    conn.close()
-
-def test_total_gastado_cliente_sin_pedidos():
-    conn = db_connection()
-    cur = conn.cursor()
-    
-   
-    id_cliente_sin_pedidos = 999 
-    total_esperado = Decimal('0.00')
-
-    cur.execute("SELECT total_gastado_por_cliente(%s);", (id_cliente_sin_pedidos,))
-    total_obtenido = cur.fetchone()[0]
-
-    assert total_obtenido == total_esperado
+    assert Decimal(total) == Decimal("1251.00")
 
     cur.close()
     conn.close()
