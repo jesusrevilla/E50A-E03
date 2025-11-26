@@ -1,20 +1,20 @@
 import pytest
-import psycopg2
 
-def test_index_exists():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="exercises",
-        user="postgres",
-        password="postgres"
-    )
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT COUNT(*) 
-        FROM pg_indexes 
-        WHERE indexname = 'idx_cliente_producto'
+def test_index_existence(db_connection):
+    """Verifica que el índice compuesto idx_pedido_producto existe."""
+    cursor = db_connection.cursor()
+    index_name = 'idx_pedido_producto'
+
+    cursor.execute(f"""
+        SELECT EXISTS (
+            SELECT 1 
+            FROM pg_class c 
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relname = '{index_name}' 
+            AND n.nspname = 'public'
+        );
     """)
-    exists = cur.fetchone()[0]
-    assert exists == 1
-    cur.close()
-    conn.close()
+    index_exists = cursor.fetchone()[0]
+    assert index_exists is True, f"El índice '{index_name}' no existe."
+
+    cursor.close()
