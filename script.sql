@@ -1,22 +1,94 @@
-SELECT * FROM vista_detalle_pedidos;
+CREATE OR REPLACE PROCEDURE registrar_pedido(
+    p_id_cliente INT,
+    p_fecha DATE,
+    p_id_producto INT,
+    p_cantidad INT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_pedido INT;
+BEGIN
+    INSERT INTO pedidos (id_cliente, fecha)
+    VALUES (p_id_cliente, p_fecha)
+    RETURNING id_pedido INTO v_id_pedido;
 
-CALL registrar_pedido(1, '2025-05-20', 2, 3);
+    INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad)
+    VALUES (v_id_pedido, p_id_producto, p_cantidad);
 
-SELECT total_gastado_por_cliente(1);
+    COMMIT;
+END;
+$$;
 
-INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
+CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT)
+RETURNS DECIMAL(10, 2)
+LANGUAGE sql
+AS $$
+SELECT
+    COALESCE(SUM(dp.cantidad * pr.precio), 0.00)
+FROM
+    pedidos p
+JOIN
+    detalle_pedido dp ON p.id_pedido = dp.id_pedido
+JOIN
+    productos pr ON dp.id_producto = pr.id_producto
+WHERE
+    p.id_cliente = p_id_cliente;
+$$;
 
-SELECT * FROM auditoria_pedidos;
+CREATE OR REPLACE VIEW vista_detalle_pedidos AS
+SELECT
+    c.nombre AS nombre_cliente,
+    p.fecha AS fecha_pedido,
+    pr.nombre AS nombre_producto,
+    dp.cantidad,
+    pr.precio AS precio_unitario,
+    (dp.cantidad * pr.precio) AS total_linea
+FROM
+    clientes c
+JOIN
+    pedidos p ON c.id_cliente = p.id_cliente
+JOIN
+    detalle_pedido dp ON p.id_pedido = dp.id_pedido
+JOIN
+    productos pr ON dp.id_producto = pr.id_producto;
 
-SELECT * FROM productos_json
-WHERE atributos ->> 'marca' = 'Dell';
+CREATE OR REPLACE FUNCTION registrar_auditoria_pedido()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido)
+    VALUES (NEW.id_cliente, NEW.fecha);
+    RETURN NEW;
+END;
+$$;
 
-SELECT nombre, correo
-FROM usuarios
-WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+CREATE OR REPLACE TRIGGER trg_auditoria_nuevo_pedido
+AFTER INSERT ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION registrar_auditoria_pedido();
 
-SELECT c1.nombre as origen, c2.nombre as destino, r.distancia_km
-FROM rutas r
-JOIN ciudades c1 ON r.id_origen = c1.id
-JOIN ciudades c2 ON r.id_destino = c2.id
-WHERE c1.nombre = 'San Luis Potosí';
+CREATE INDEX IF NOT EXISTS idx_pedido_producto ON detalle_pedido (id_pedido, id_producto);
+
+CREATE TABLE IF NOT EXISTS productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
+);
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB
+);
+
+INSERT INTO productos_json (nombre, atributos) VALUES
+('Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}'),
+('Smartphone', '{"marca": "Samsung", "pantalla": "6.5 pulgadas", "almacenamiento": "128GB"}'),
+('Tablet', '{"marca": "Apple", "modelo": "iPad Air", "color": "gris"}');
+
+INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
+('Laura Gómez', 'laura@example.com', '[{"fecha": "2025-05-01", "accion": "inicio_sesion"}, {"fecha": "2025-05-02", "accion": "subio_archivo"}]'),
+('Pedro Ruiz', 'pedro@example.com', '[{"fecha": "2025-05-01", "accion": "inicio_sesion"}, {"fecha": "2025-05-04", "accion": "comentó_publicación"}]');
