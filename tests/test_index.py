@@ -1,31 +1,22 @@
-
 import pytest
 # ... (incluir fixture db_connection) ...
 
-def test_grafo_rutas_desde_slp(db_connection):
-    """Verifica la consulta de rutas de grafo desde San Luis Potosí."""
+def test_index_existence(db_connection):
+    """Verifica que el índice compuesto idx_pedido_producto existe."""
     cursor = db_connection.cursor()
+    index_name = 'idx_pedido_producto'
 
-    # Consulta del examen: Ver todas las rutas desde San Luis Potosí
-    cursor.execute("""
-        SELECT
-            destino.nombre
-        FROM
-            rutas r
-        JOIN
-            ciudades origen ON r.id_origen = origen.id
-        JOIN
-            ciudades destino ON r.id_destino = destino.id
-        WHERE
-            origen.nombre = 'San Luis Potosí';
+    # Consulta para verificar la existencia de un índice por nombre
+    cursor.execute(f"""
+        SELECT EXISTS (
+            SELECT 1 
+            FROM pg_class c 
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relname = '{index_name}' 
+            AND n.nspname = 'public'
+        );
     """)
-    
-    results = cursor.fetchall()
-    destinos = sorted([r[0] for r in results])
-    
-    # Rutas desde SLP (id 1): Querétaro (id 2) y CDMX (id 5)
-    expected_destinations = ['CDMX', 'Querétaro']
-    
-    assert destinos == expected_destinations, "La consulta de grafo no devolvió los destinos correctos."
+    index_exists = cursor.fetchone()[0]
+    assert index_exists is True, f"El índice '{index_name}' no existe."
 
     cursor.close()
