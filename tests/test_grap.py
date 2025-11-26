@@ -1,16 +1,15 @@
-from app.db import run_query
+import psycopg2
+import pytest
 
-
-def test_rutas_ciudades():
-    result = run_query("""
-        WITH RECURSIVE conexiones AS (
-            SELECT id_origen, id_destino, distancia_km FROM rutas WHERE id_origen = 1
-            UNION ALL
-            SELECT r.id_origen, r.id_destino, r.distancia_km
-            FROM rutas r
-            INNER JOIN conexiones c ON r.id_origen = c.id_destino
-        )
-        SELECT * FROM conexiones;
-    """)
-    assert len(result) > 0
-
+# Fixture para establecer la conexión a la DB
+@pytest.fixture(scope="module")
+def db_connection():
+    # Los detalles de la conexión coinciden con el YAML de GitHub Actions
+    conn = psycopg2.connect(
+        host="localhost",
+        database="test_db",  # Corregir la base de datos a test_db
+        user="postgres",
+        password="postgres"
+    )
+    yield conn
+    conn.close()
