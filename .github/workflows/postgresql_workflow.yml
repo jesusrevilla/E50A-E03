@@ -42,30 +42,18 @@ jobs:
       run: |
         sleep 10
 
-    - name: Set up database schema and data
+    - name: Set up database schema
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
 
-    - name: Insert data
+    - name: Insert initial data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql
 
-   - name: Load functions and procedures
+    - name: Set up DB Objects
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_function.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f script.sql
 
-    - name: Load views and indexes
+    - name: Run tests
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 04_view_index.sql
-
-    - name: Load triggers
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 05_triggers.sql
-
-    - name: Run script queries
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 06_queries.sql
-
-    - name: Run unit tests
-      run: |
-        pytest -vv
+        pytest
