@@ -19,3 +19,13 @@ INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
 (1, 1, 1),  -- Ana compra 1 Laptop
 (1, 2, 2),  -- Ana compra 2 Mouse
 (2, 3, 1);  -- Luis compra 1 Teclado
+
+INSERT INTO rutas (id_origen, id_destino, distancia)
+VALUES
+(1, 2, 300),
+(1, 3, 150);
+
+INSERT INTO productos_json (atributos)
+VALUES
+('{"marca": "Dell", "modelo": "XPS"}'),
+('{"marca": "HP", "modelo": "Pavilion"}');
