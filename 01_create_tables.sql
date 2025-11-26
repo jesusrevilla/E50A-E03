@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS clientes (
     correo VARCHAR(100)
 );
 
+
+
 CREATE TABLE IF NOT EXISTS productos (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
