@@ -16,10 +16,9 @@ def db():
 def test_view_exists(db):
     cur = db.cursor()
     cur.execute("""
-        SELECT * FROM vista_productos_activos LIMIT 1;
+        SELECT * FROM vista_detalle_productos LIMIT 1;
     """)
     rows = cur.fetchall()
 
-    # No debe tirar error
     assert isinstance(rows, list)
 
