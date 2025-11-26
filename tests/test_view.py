@@ -1,4 +1,5 @@
-from db import run_query
+from app.db import run_query
+
 
 def test_vista_detalle_pedidos():
     result = run_query("SELECT * FROM vista_detalle_pedidos;")
