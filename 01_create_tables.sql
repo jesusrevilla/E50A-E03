@@ -4,6 +4,8 @@ CREATE TABLE clientes (
     correo VARCHAR(100)
 );
 
+--Commentartio
+
 CREATE TABLE productos (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
