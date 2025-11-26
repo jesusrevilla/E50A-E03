@@ -6,7 +6,6 @@ DB_HOST = "localhost"
 DB_NAME = "test_db"
 DB_USER = "postgres"
 DB_PASS = "postgres"
-
 def execute_query(query, fetch=True):
     
     conn = None
