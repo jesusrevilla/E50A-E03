@@ -16,14 +16,14 @@ def run_query(query):
             return cur.fetchall()
 
 def test_productos_con_marca_dell():
-    json_data = '{"marca": "TestBrand", "color": "Rojo"}'
-    db_cursor.execute("INSERT INTO productos_json (nombre, atributos) VALUES (%s, %s)", ('TestItem', json_data))
+    json_data = '{"marca": "Dell", "color": "Rojo"}'
+    run_query(f"INSERT INTO productos_json (nombre, atributos) VALUES ('TestItem', '{json_data}');")
 
-    db_cursor.execute("SELECT nombre FROM productos_json WHERE atributos ->> 'color' = 'Rojo'")
-    res = db_cursor.fetchone()
+    query = "SELECT nombre FROM productos_json WHERE atributos ->> 'color' = 'Rojo';"
+    res = run_query(query, fetchone=True)
 
-    assert res is not None
-    assert res[0] == 'TestItem'
+    assert res is not None  
+    assert res[0] == 'TestItem'  
 
 
 
