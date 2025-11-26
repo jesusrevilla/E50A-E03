@@ -64,3 +64,10 @@ AFTER INSERT ON pedidos
 FOR EACH ROW
 EXECUTE FUNCTION registrar_auditoria_pedido();
 
+SELECT * FROM productos_json
+WHERE atributos ->> 'marca' = 'Dell';
+
+SELECT nombre, correo
+FROM usuarios
+WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+
