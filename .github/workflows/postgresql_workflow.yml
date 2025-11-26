@@ -13,7 +13,7 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_DB: exercises        
+          POSTGRES_DB: test_db
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
@@ -31,22 +31,29 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.X'
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
-
-    - name: Run SQL scripts
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/01_create_tables.sql
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/02_insert_data.sql
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/03_create_views.sql
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/04_procedures.sql
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/05_functions.sql
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/06_triggers.sql
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/07_jsonb.sql
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f sql/08_graphs.sql
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
+    - name: Wait for PostgreSQL
+      run: |
+        sleep 10
+
+    - name: Set up database schema and data
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
+
+    - name: Insert data
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+
+    - name: Query data
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
+        
     - name: Run tests
-      run: pytest
-
+      run: |
+        pytest
