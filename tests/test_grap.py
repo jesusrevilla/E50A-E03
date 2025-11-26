@@ -1,6 +1,5 @@
 import pytest
 
-
 def test_grafo_rutas(db_cursor):
     db_cursor.execute("INSERT INTO ciudades (nombre) VALUES ('A'), ('B') RETURNING id")
     ids = db_cursor.fetchall()
