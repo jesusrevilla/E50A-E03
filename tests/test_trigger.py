@@ -1,34 +1,70 @@
+
+import os
+from pathlib import Path
+
 import psycopg2
-import pytest
-import time
 
-DB_CONFIG = "dbname=tu_base_datos user=tu_usuario password=tu_password host=localhost"
 
-def test_trigger_auditoria():
-    """
-    4. Trigger: Valida que al insertar un pedido, se cree un registro en auditoria_pedidos.
-    """
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "postgres"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
+
+
+def run_sql_file(cur, filename: str) -> None:
+    path = ROOT / filename
+    with path.open(encoding="utf-8") as f:
+        cur.execute(f.read())
+
+
+def init_db():
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(DB_CONFIG)
-        conn.autocommit = True
-        cur = conn.cursor()
-        
-        fecha_test = '2025-12-31'
-        
-        # Insertamos pedido (esto dispara el trigger)
-        cur.execute(f"INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '{fecha_test}');")
-        
-        # Verificamos tabla de auditoría
-        cur.execute(f"SELECT * FROM auditoria_pedidos WHERE fecha_pedido = '{fecha_test}' AND id_cliente = 1;")
-        audit = cur.fetchone()
-        
-        assert audit is not None, "El trigger no insertó el registro de auditoría"
-        
-        print("✅ Test Trigger: PASÓ")
+        run_sql_file(cur, "01_create_tables.sql")
+        run_sql_file(cur, "02_insert_data.sql")
+        run_sql_file(cur, "script.sql")
+    finally:
         cur.close()
         conn.close()
-    except Exception as e:
-        pytest.fail(f"Error en test_trigger: {e}")
 
-if __name__ == "__main__":
-    test_trigger_auditoria()
+
+def test_trigger_auditoria_pedidos_inserta_registro():
+    init_db()
+
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
+    try:
+        # Insertamos un pedido "manual" para disparar el trigger
+        cur.execute(
+            "INSERT INTO pedidos (id_cliente, fecha) VALUES (1, DATE '2025-05-20');"
+        )
+
+        # Debe haberse insertado algo en auditoria_pedidos
+        cur.execute(
+            """
+            SELECT id_cliente, fecha_pedido, fecha_registro
+            FROM auditoria_pedidos
+            ORDER BY id_auditoria DESC
+            LIMIT 1;
+            """
+        )
+        row = cur.fetchone()
+        assert row is not None
+
+        id_cliente, fecha_pedido, fecha_registro = row
+        assert id_cliente == 1
+        assert str(fecha_pedido) == "2025-05-20"
+        assert fecha_registro is not None
+    finally:
+        cur.close()
+        conn.close()
