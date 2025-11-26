@@ -36,6 +36,14 @@ CREATE TABLE productos_json (
     nombre TEXT,
     atributos JSONB
 );
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB
+);
+
 -- Nodos: ciudades
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
