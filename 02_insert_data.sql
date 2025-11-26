@@ -37,12 +37,15 @@ INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
     {"fecha": "2025-05-04", "accion": "comentó_publicación"}
 ]');
 
+-- Ciudades
 INSERT INTO ciudades (nombre) VALUES
 ('San Luis Potosí'), ('Querétaro'), ('Guadalajara'), ('Monterrey'), ('CDMX');
 
+-- Rutas (grafo dirigido)
 INSERT INTO rutas (id_origen, id_destino, distancia_km) VALUES
-(1, 2, 180),
-(2, 3, 350),
-(1, 5, 410),
-(5, 4, 900),
-(3, 4, 700);
+(1, 2, 180),  -- SLP → Querétaro
+(2, 3, 350),  -- Querétaro → Guadalajara
+(1, 5, 410),  -- SLP → CDMX
+(5, 4, 900),  -- CDMX → Monterrey
+(3, 4, 700);  -- Guadalajara → Monterrey
+
