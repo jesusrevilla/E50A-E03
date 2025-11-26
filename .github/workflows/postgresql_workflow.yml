@@ -53,7 +53,11 @@ jobs:
     - name: Query data
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
-        
+
+    - name: Correr scripts
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f script.sql
+               
     - name: Run tests
       run: |
         pytest
