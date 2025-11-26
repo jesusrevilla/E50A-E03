@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     nombre VARCHAR(100),
     correo VARCHAR(100)
 );
-
+ 
 
 
 CREATE TABLE IF NOT EXISTS productos (
