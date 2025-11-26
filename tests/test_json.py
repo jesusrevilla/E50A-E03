@@ -1,30 +1,20 @@
 import pytest
-import psycopg2
 
-def test_productos_json():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="exercises",
-        user="postgres",
-        password="postgres"
-    )
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM productos_json WHERE atributos ->> 'marca' = 'Dell'")
-    results = cur.fetchall()
-    assert len(results) >= 1
-    cur.close()
-    conn.close()
+def test_jsonb_query(db_connection):
+    """Verifica la consulta de JSONB para encontrar usuarios con una acción específica."""
+    cursor = db_connection.cursor()
 
-def test_usuarios_json():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="exercises",
-        user="postgres",
-        password="postgres"
-    )
-    cur = conn.cursor()
-    cur.execute("SELECT nombre, correo FROM usuarios WHERE historial_actividad @> '[{\"accion\": \"inicio_sesion\"}]'")
-    results = cur.fetchall()
-    assert len(results) >= 2
-    cur.close()
-    conn.close()
+    cursor.execute("""
+        SELECT nombre 
+        FROM usuarios 
+        WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+    """)
+
+    results = cursor.fetchall()
+    nombres = sorted([r[0] for r in results])
+
+    expected_names = ['Laura Gómez', 'Pedro Ruiz']
+
+    assert nombres == expected_names, "La consulta JSONB no devolvió los usuarios correctos."
+
+    cursor.close()
