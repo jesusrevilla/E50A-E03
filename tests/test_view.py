@@ -1,6 +1,6 @@
 import psycopg2
-from decimal import Decimal # Para manejar números decimales con precisión
-from .conftest import db_connection # Asume configuración de conexión a DB
+from decimal import Decimal 
+from .conftest import db_connection 
 
 def test_vista_detalle_pedidos_funcionalidad():
     """
