@@ -1,40 +1,22 @@
 import psycopg2
 
-def test_insert_row():
+def test_grafo_rutas():
     conn = psycopg2.connect(
-        dbname='test_db',
-        user='postgres',
-        password='postgres',
-        host='localhost',
-        port=5432
+        dbname="test_db", user="postgres", password="postgres", host="localhost", port="5432"
     )
     cur = conn.cursor()
 
-    cur.execute("INSERT INTO clientes(nombre) VALUES ('pato') RETURNING id;")
-    new_id = cur.fetchone()[0]
-    conn.commit()
+    cur.execute("""
+        SELECT c1.nombre, c2.nombre, distancia_km
+        FROM rutas r
+        JOIN ciudades c1 ON r.id_origen = c1.id
+        JOIN ciudades c2 ON r.id_destino = c2.id
+        WHERE r.id_origen = 1;
+    """)
+    rows = cur.fetchall()
 
-    cur.execute("SELECT nombre FROM clientes WHERE id = %s;", (new_id,))
-    result = cur.fetchone()[0]
-    assert result == 'pato'
+    assert ("San Luis Potosí", "Querétaro", 180) in rows
 
+    assert ("San Luis Potosí", "CDMX", 410) in rows
 
-def test_update_row():
-    conn = psycopg2.connect(
-        dbname='test_db',
-        user='postgres',
-        password='postgres',
-        host='localhost',
-        port=5432
-    )
-    cur = conn.cursor()
-
-    cur.execute("INSERT INTO clientes(nombre) VALUES ('viejo') RETURNING id;")
-    cid = cur.fetchone()[0]
-
-    cur.execute("UPDATE clientes SET nombre = 'nuevo' WHERE id = %s;", (cid,))
-    conn.commit()
-
-    cur.execute("SELECT nombre FROM clientes WHERE id = %s;", (cid,))
-    result = cur.fetchone()[0]
-    assert result == 'nuevo'
+    conn.close()
