@@ -1,4 +1,5 @@
-from db import run_query
+from app.db import run_query
+
 
 def test_rutas_ciudades():
     result = run_query("""
