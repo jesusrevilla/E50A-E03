@@ -19,19 +19,26 @@ def test_registrar_pedido():
     query = """
         CALL registrar_pedido(1, '2025-05-10', 3, 2);
     """
-    run_query(query)  
-
+    run_query(query) 
     query_pedido = """
-        SELECT * FROM pedidos WHERE id_cliente = 1 AND fecha = '2025-05-10';
+        SELECT id_pedido, id_cliente, fecha FROM pedidos 
+        WHERE id_cliente = %s AND fecha = %s;
     """
-    pedido_result = run_query(query_pedido)
+    pedido_result = run_query(query_pedido, params=(1, '2025-05-10'), fetchone=True)
+
+    assert pedido_result is not None 
+    assert pedido_result[1] == 1 
+    assert pedido_result[2] == '2025-05-10'  
+    
+    id_pedido = pedido_result[0]
 
     query_detalle = """
-        SELECT * FROM detalle_pedido WHERE id_pedido = %s;
+        SELECT id_pedido, id_producto, cantidad FROM detalle_pedido 
+        WHERE id_pedido = %s;
     """
-    detalle_result = run_query(query_detalle % (pedido_result[0][0],))
+    detalle_result = run_query(query_detalle, params=(id_pedido,), fetchall=True)
 
-    expected_detalle = [(pedido_result[0][0], 3, 2)] 
+    expected_detalle = [(id_pedido, 3, 2)]  
 
-    assert len(pedido_result) == 1
+    assert len(detalle_result) == 1  
     assert detalle_result == expected_detalle
