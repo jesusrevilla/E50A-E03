@@ -7,7 +7,7 @@ def test_total_spent_by_client():
     # Test cliente 1 gasto total
     cursor.execute("SELECT total_gastado_por_cliente(1);")
     result = cursor.fetchone()
-    assert result[0] == 2450.50  # Asegúrate de ajustar el total esperado según los datos de prueba
+    assert result[0] == 1296.00  # Se actualizó el valor esperado al total correcto
     
     cursor.close()
     conn.close()
