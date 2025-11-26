@@ -42,8 +42,6 @@ def test_vista_detalle_pedidos():
         cur.execute("SELECT * FROM vista_detalle_pedidos ORDER BY id_detalle;")
         rows = cur.fetchall()
 
-        # Validación basada en los datos insertados
-        # id_detalle, nombre_producto, cantidad, cliente
         assert rows[0][1] == "Laptop"
         assert rows[0][3] == "Ana Torres"
 
