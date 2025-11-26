@@ -1,4 +1,4 @@
--- 1. VISTA: vista_detalle_pedidos
+
 CREATE OR REPLACE VIEW vista_detalle_pedidos AS
 SELECT
     c.nombre AS nombre_cliente,
@@ -40,7 +40,6 @@ BEGIN
 END;
 $$;
 
--- 3. FUNCIÓN: total_gastado_por_cliente
 CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT)
 RETURNS NUMERIC AS $$
 DECLARE
@@ -56,13 +55,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 3. ÍNDICE COMPUESTO
+
 CREATE INDEX IF NOT EXISTS idx_cliente_producto ON detalle_pedido (id_pedido, id_producto);
 
 
--- 4. TRIGGERS
 
--- Función de auditoría para pedidos
 CREATE OR REPLACE FUNCTION auditar_nuevo_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -78,9 +75,6 @@ AFTER INSERT ON pedidos
 FOR EACH ROW
 EXECUTE FUNCTION auditar_nuevo_pedido();
 
-
--- 6. CONSULTA ÚTIL DE GRAFOS
--- Función para obtener rutas desde una ciudad (por nombre)
 CREATE OR REPLACE FUNCTION get_rutas_desde_ciudad(p_ciudad_nombre TEXT)
 RETURNS TABLE (
     origen TEXT,
@@ -105,8 +99,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 5. CONSULTA ÚTIL DE JSONB
--- Función para extraer todas las acciones de un usuario (por nombre)
 CREATE OR REPLACE FUNCTION get_acciones_usuario(p_nombre TEXT)
 RETURNS TABLE (
     accion TEXT
