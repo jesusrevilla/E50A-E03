@@ -39,3 +39,24 @@ END;
 $$;
 
 CALL registrar_pedido(1, '2025-05-20', 2, 3);
+
+-- Funcion 
+CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT)
+RETURNS DECIMAL(10, 2)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_total DECIMAL(10, 2);
+BEGIN
+    SELECT COALESCE(SUM(dp.cantidad * pr.precio), 0)
+    INTO v_total
+    FROM pedidos pe
+    JOIN detalle_pedido dp ON pe.id_pedido = dp.id_pedido
+    JOIN productos pr ON dp.id_producto = pr.id_producto
+    WHERE pe.id_cliente = p_id_cliente;
+
+    RETURN v_total;
+END;
+$$;
+
+SELECT total_gastado_por_cliente(1);
