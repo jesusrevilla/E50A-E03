@@ -5,7 +5,6 @@ from decimal import Decimal
 def test_funcion_total_gastado(db_conn=None):
     conn = None
     try:
-        # Configura tu conexión aquí
         conn = psycopg2.connect(
             dbname='test_db',
             user='postgres',
