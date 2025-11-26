@@ -48,5 +48,16 @@ AFTER INSERT ON pedidos
 FOR EACH ROW
 EXECUTE FUNCTION registrar_pedido();
 
+--JSON
+SELECT
+    ha.value->>'accion' AS accion
+FROM 
+    usuarios u,
+    LATERAL jsonb_array_elements(u.historial_actividad) AS ha
+WHERE 
+    u.nombre = 'Pedro Ruiz';
+
+--Gráfos
+
 
 
