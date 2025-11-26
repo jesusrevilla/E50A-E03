@@ -1,14 +1,14 @@
 import psycopg2
 import pytest
 
-# Configuración de conexión (ajústala si usas conftest.py)
+
 DB_HOST = "localhost"
 DB_NAME = "test_db"
 DB_USER = "postgres"
 DB_PASS = "postgres"
 
 def execute_query(query, fetch=True):
-    # Función auxiliar para ejecutar consultas
+    
     conn = None
     try:
         conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
@@ -33,19 +33,19 @@ def test_auditoria_pedidos_trigger():
     ID_CLIENTE = 1
     FECHA = '2025-06-01'
     
-    # 1. Obtener conteo inicial de auditoría
+  
     initial_auditoria_count = execute_query("SELECT COUNT(*) FROM auditoria_pedidos;")[0][0]
     
-    # 2. Insertar un nuevo pedido que debería disparar el trigger
+  
     insert_pedido = f"INSERT INTO pedidos (id_cliente, fecha) VALUES ({ID_CLIENTE}, '{FECHA}');"
     execute_query(insert_pedido, fetch=False)
     
-    # 3. Verificar conteo final
+    
     final_auditoria_count = execute_query("SELECT COUNT(*) FROM auditoria_pedidos;")[0][0]
     
     assert final_auditoria_count == initial_auditoria_count + 1, "El trigger no insertó el registro de auditoría."
     
-    # 4. Verificar los datos específicos del registro de auditoría
+    
     query_check = f"""
     SELECT id_cliente, fecha_pedido 
     FROM auditoria_pedidos
