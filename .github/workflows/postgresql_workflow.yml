@@ -1,4 +1,4 @@
-name: Run PostgreSQL Tests
+name: Run PostgreSQL Tests 
 
 on:
   push:
