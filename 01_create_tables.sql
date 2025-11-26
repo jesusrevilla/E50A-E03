@@ -1,4 +1,5 @@
 
+
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
@@ -24,29 +25,16 @@ CREATE TABLE detalle_pedido (
     cantidad INT
 );
 
-CREATE TABLE auditoria_pedidos (
-    id_auditoria SERIAL PRIMARY KEY,
-    id_cliente INT,
-    fecha_pedido DATE,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE usuarios_log (
-    id_usuario SERIAL PRIMARY KEY,
-    nombre TEXT,
-    historial_actividad JSONB
-);
-
-CREATE TABLE usuarios (
+CREATE TABLE rutas (
     id SERIAL PRIMARY KEY,
-    nombre TEXT,
-    correo TEXT,
-    historial_actividad JSONB
+    id_origen INT,
+    id_destino INT,
+    distancia INT
 );
 
--- Nodos: ciudades
-CREATE TABLE ciudades (
+CREATE TABLE productos_json (
     id SERIAL PRIMARY KEY,
-    nombre TEXT NOT NULL
+    atributos JSONB
 );
+
 
