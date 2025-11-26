@@ -1,4 +1,4 @@
--- Tablas principales
+
 CREATE TABLE IF NOT EXISTS clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
