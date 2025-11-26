@@ -1,23 +1,9 @@
 
-CREATE OR REPLACE VIEW vista_detalle_pedidos AS
-SELECT 
-    p.id_pedido,
-    c.nombre AS nombre_cliente,
-    pr.nombre AS nombre_producto,
-    dp.cantidad,
-    pr.precio AS precio_unitario,
-    (dp.cantidad * pr.precio) AS total_linea,
-    p.fecha
-FROM detalle_pedido dp
-JOIN pedidos p ON dp.id_pedido = p.id_pedido
-JOIN clientes c ON p.id_cliente = c.id_cliente
-JOIN productos pr ON dp.id_producto = pr.id_producto;
-
--- Parte 2: Procedimiento Almacenado
+-- 1. Procedimiento Almacenado
 CREATE OR REPLACE PROCEDURE registrar_pedido(
-    p_id_cliente INT, 
-    p_fecha DATE, 
-    p_id_producto INT, 
+    p_id_cliente INT,
+    p_fecha DATE,
+    p_id_producto INT,
     p_cantidad INT
 )
 LANGUAGE plpgsql
@@ -25,58 +11,91 @@ AS $$
 DECLARE
     v_id_pedido INT;
 BEGIN
-    -- Insertar pedido y capturar el ID generado
-    INSERT INTO pedidos (id_cliente, fecha) 
+    INSERT INTO pedidos (id_cliente, fecha)
     VALUES (p_id_cliente, p_fecha)
     RETURNING id_pedido INTO v_id_pedido;
 
-    -- Insertar detalle
-    INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) 
+    INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad)
     VALUES (v_id_pedido, p_id_producto, p_cantidad);
-    
-    RAISE NOTICE 'Pedido creado con éxito. ID: %', v_id_pedido;
+
+    COMMIT;
 END;
 $$;
 
--- Parte 3: Función
+--  2. Función
 CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT)
 RETURNS DECIMAL(10, 2)
-LANGUAGE plpgsql
+LANGUAGE sql
 AS $$
-DECLARE
-    v_total DECIMAL(10, 2);
-BEGIN
-    SELECT COALESCE(SUM(dp.cantidad * pr.precio), 0)
-    INTO v_total
-    FROM pedidos p
-    JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
-    JOIN productos pr ON dp.id_producto = pr.id_producto
-    WHERE p.id_cliente = p_id_cliente;
-    
-    RETURN v_total;
-END;
+SELECT
+    COALESCE(SUM(dp.cantidad * pr.precio), 0.00)
+FROM
+    pedidos p
+JOIN
+    detalle_pedido dp ON p.id_pedido = dp.id_pedido
+JOIN
+    productos pr ON dp.id_producto = pr.id_producto
+WHERE
+    p.id_cliente = p_id_cliente;
 $$;
 
--- FALTABA ESTO (Requisito del examen para test_index.py)
-CREATE INDEX IF NOT EXISTS idx_cliente_producto ON detalle_pedido(id_pedido, id_producto);
+--3. Vista
+CREATE OR REPLACE VIEW vista_detalle_pedidos AS
+SELECT
+    c.nombre AS nombre_cliente,
+    p.fecha AS fecha_pedido,
+    pr.nombre AS nombre_producto,
+    dp.cantidad,
+    pr.precio AS precio_unitario,
+    (dp.cantidad * pr.precio) AS total_linea
+FROM
+    clientes c
+JOIN
+    pedidos p ON c.id_cliente = p.id_cliente
+JOIN
+    detalle_pedido dp ON p.id_pedido = dp.id_pedido
+JOIN
+    productos pr ON dp.id_producto = pr.id_producto;
 
--- Parte 4: Triggers
-
-CREATE OR REPLACE FUNCTION funcion_auditoria_pedidos()
-RETURNS TRIGGER 
+-- 4. Trigger (Función y Trigger)
+CREATE OR REPLACE FUNCTION registrar_auditoria_pedido()
+RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido, fecha_registro)
-    VALUES (NEW.id_cliente, NEW.fecha, CURRENT_TIMESTAMP);
+    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido)
+    VALUES (NEW.id_cliente, NEW.fecha);
     RETURN NEW;
 END;
 $$;
 
--- Disparador
-DROP TRIGGER IF EXISTS trg_auditoria_pedido ON pedidos;
-
-CREATE TRIGGER trg_auditoria_pedido
+CREATE OR REPLACE TRIGGER trg_auditoria_nuevo_pedido
 AFTER INSERT ON pedidos
 FOR EACH ROW
-EXECUTE FUNCTION funcion_auditoria_pedidos();
+EXECUTE FUNCTION registrar_auditoria_pedido();
+
+--  5. Crear el índice compuesto
+CREATE INDEX IF NOT EXISTS idx_pedido_producto ON detalle_pedido (id_pedido, id_producto);
+
+--  6. Tablas JSONB (Si no se incluyeron en 01_create_tables.sql)
+CREATE TABLE IF NOT EXISTS productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
+);
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB
+);
+
+INSERT INTO productos_json (nombre, atributos) VALUES
+('Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}'),
+('Smartphone', '{"marca": "Samsung", "pantalla": "6.5 pulgadas", "almacenamiento": "128GB"}'),
+('Tablet', '{"marca": "Apple", "modelo": "iPad Air", "color": "gris"}');
+
+INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
+('Laura Gómez', 'laura@example.com', '[{"fecha": "2025-05-01", "accion": "inicio_sesion"}, {"fecha": "2025-05-02", "accion": "subio_archivo"}]'),
+('Pedro Ruiz', 'pedro@example.com', '[{"fecha": "2025-05-01", "accion": "inicio_sesion"}, {"fecha": "2025-05-04", "accion": "comentó_publicación"}]');
