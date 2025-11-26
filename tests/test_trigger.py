@@ -1,61 +1,19 @@
-import psycopg2
-import pytest
+def test_trigger_auditoria_funciona(cursor):
+    cliente_id = 2
+    
+    cursor.execute("SELECT COUNT(*) FROM auditoria_pedidos")
+    auditorias_antes = cursor.fetchone()[0]
+    
+    # El trigger se activa al insertar en la tabla 'pedidos'
+    cursor.execute("INSERT INTO pedidos (id_cliente, fecha) VALUES (%s, '2025-06-05')", (cliente_id,))
+    
+    cursor.execute("SELECT COUNT(*) FROM auditoria_pedidos")
+    auditorias_despues = cursor.fetchone()[0]
 
+    assert auditorias_despues == auditorias_antes + 1
 
-DB_HOST = "localhost"
-DB_NAME = "test_db"
-DB_USER = "postgres"
-DB_PASS = "postgres"
-
-def execute_query(query, fetch=True):
+    cursor.execute("SELECT id_cliente, fecha_pedido FROM auditoria_pedidos ORDER BY id_auditoria DESC LIMIT 1")
+    auditoria_registro = cursor.fetchone()
     
-    conn = None
-    try:
-        conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
-        cur = conn.cursor()
-        cur.execute(query)
-        if fetch:
-            result = cur.fetchall()
-            return result
-        else:
-            conn.commit()
-            return None
-    except Exception as e:
-        print(f"Error al ejecutar la consulta: {e}")
-        raise
-    finally:
-        if conn:
-            conn.close()
-
-def test_auditoria_pedidos_trigger():
-    """Verifica que al insertar un pedido, se cree un registro en auditoria_pedidos."""
-    
-    ID_CLIENTE = 1
-    FECHA = '2025-06-01'
-    
-  
-    initial_auditoria_count = execute_query("SELECT COUNT(*) FROM auditoria_pedidos;")[0][0]
-    
-  
-    insert_pedido = f"INSERT INTO pedidos (id_cliente, fecha) VALUES ({ID_CLIENTE}, '{FECHA}');"
-    execute_query(insert_pedido, fetch=False)
-    
-    
-    final_auditoria_count = execute_query("SELECT COUNT(*) FROM auditoria_pedidos;")[0][0]
-    
-    assert final_auditoria_count == initial_auditoria_count + 1, "El trigger no insertó el registro de auditoría."
-    
-    
-    query_check = f"""
-    SELECT id_cliente, fecha_pedido 
-    FROM auditoria_pedidos
-    ORDER BY id_auditoria DESC
-    LIMIT 1;
-    """
-    new_record = execute_query(query_check)[0]
-    
-    # psycopg2 recupera la fecha como datetime.date
-    import datetime
-    
-    assert new_record[0] == ID_CLIENTE
-    assert new_record[1] == datetime.date(2025, 6, 1)
+    assert auditoria_registro[0] == cliente_id
+    assert str(auditoria_registro[1]) == '2025-06-05'
