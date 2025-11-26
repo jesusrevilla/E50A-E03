@@ -1,4 +1,4 @@
-
+-- Clientes, productos, pedidos, detalle_pedido
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
@@ -8,7 +8,7 @@ CREATE TABLE clientes (
 CREATE TABLE productos (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
-    precio DECIMAL(10, 2)
+    precio DECIMAL(10,2)
 );
 
 CREATE TABLE pedidos (
@@ -22,4 +22,39 @@ CREATE TABLE detalle_pedido (
     id_pedido INT REFERENCES pedidos(id_pedido),
     id_producto INT REFERENCES productos(id_producto),
     cantidad INT
+);
+
+-- Auditoría
+CREATE TABLE auditoria_pedidos (
+    id_auditoria SERIAL PRIMARY KEY,
+    id_cliente INT,
+    fecha_pedido DATE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tablas para JSON
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
+);
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB
+);
+
+-- Grafo de ciudades
+CREATE TABLE ciudades (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+CREATE TABLE rutas (
+    id_origen INT REFERENCES ciudades(id),
+    id_destino INT REFERENCES ciudades(id),
+    distancia_km INT,
+    PRIMARY KEY (id_origen, id_destino)
 );
