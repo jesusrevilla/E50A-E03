@@ -5,7 +5,7 @@ import pytest
 def test_index_existence(db_connection):
     """Verifica que el índice compuesto idx_pedido_producto existe."""
     cursor = db_connection.cursor()
-    index_name = 'idx_pedido_producto'
+    index_name = 'idx_cliente_producto'
 
 
     cursor.execute(f"""
