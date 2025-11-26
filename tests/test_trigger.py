@@ -54,7 +54,7 @@ def test_trigger_exists_on_pedidos():
 
 
 def test_trigger_inserts_audit_row():
-    # Probamos el ejemplo del README dentro de transacción. :contentReference[oaicite:10]{index=10}
+    # Probamos el ejemplo del README dentro de transacción.
     out = psql("""
       BEGIN;
 
@@ -71,6 +71,12 @@ def test_trigger_inserts_audit_row():
 
       ROLLBACK;
     """)
+
+    # --- FIX START ---
+    # Filter out transaction messages
+    out = [line for line in out if line not in ('BEGIN', 'COMMIT', 'ROLLBACK')]
+    # --- FIX END ---
+
     assert len(out) >= 3, f"Salida inesperada: {out}"
 
     before = int(out[0])
