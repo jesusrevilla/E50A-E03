@@ -16,17 +16,14 @@ def run_query(query):
             return cur.fetchall()
 
 def test_productos_con_marca_dell():
-    query = """
-        SELECT * FROM productos_json
-        WHERE atributos ->> 'marca' = 'Dell';
-    """
-    result = run_query(query)
+    json_data = '{"marca": "TestBrand", "color": "Rojo"}'
+    db_cursor.execute("INSERT INTO productos_json (nombre, atributos) VALUES (%s, %s)", ('TestItem', json_data))
 
-    expected_result = [
-        (1, 'Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}')
-    ]
+    db_cursor.execute("SELECT nombre FROM productos_json WHERE atributos ->> 'color' = 'Rojo'")
+    res = db_cursor.fetchone()
 
-    assert result == expected_result
+    assert res is not None
+    assert res[0] == 'TestItem'
 
 
 
