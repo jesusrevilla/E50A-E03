@@ -17,11 +17,11 @@ def db():
 
     sql_dir = Path(".")
 
-    with open(sql_dir / "create_tables.sql", "r") as f:
+    with open(sql_dir / "01_create_tables.sql", "r") as f:
         with conn.cursor() as cur:
             cur.execute(f.read())
 
-    with open(sql_dir / "insert_data.sql", "r") as f:
+    with open(sql_dir / "02_insert_data.sql", "r") as f:
         with conn.cursor() as cur:
             cur.execute(f.read())
 
