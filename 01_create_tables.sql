@@ -1,4 +1,4 @@
--- 1. Joins y Vistas
+
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
@@ -24,7 +24,6 @@ CREATE TABLE detalle_pedido (
     cantidad INT
 );
 
--- 4. Disparadores (Triggers)
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
     id_cliente INT,
@@ -32,7 +31,7 @@ CREATE TABLE auditoria_pedidos (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. NoSQL
+
 CREATE TABLE productos_json (
     id SERIAL PRIMARY KEY,
     nombre TEXT,
@@ -46,7 +45,7 @@ CREATE TABLE usuarios (
     historial_actividad JSONB
 );
 
--- 6. Gráfos
+
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
     nombre TEXT NOT NULL
