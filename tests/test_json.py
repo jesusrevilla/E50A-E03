@@ -4,7 +4,7 @@ import pytest
 @pytest.fixture(scope="module")
 def db_connection():
     conn = psycopg2.connect(
-        dbname="testdb",
+        dbname="test_db",
         user="postgres",
         password="postgres",
         host="localhost",
