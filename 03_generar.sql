@@ -15,7 +15,6 @@ FROM
     
 SELECT * FROM vista_detalle_pedidos;
 
--- Procedimiento almacenado
 CREATE OR REPLACE PROCEDURE registrar_pedido(
     p_id_cliente INT,
     p_fecha DATE,
@@ -40,7 +39,6 @@ $$;
 
 CALL registrar_pedido(1, '2025-05-20', 2, 3);
 
--- Funcion 
 CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT)
 RETURNS DECIMAL(10, 2)
 LANGUAGE plpgsql
@@ -70,13 +68,9 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Insertamos en la tabla de auditoría los datos que vienen 
-    -- en la variable NEW (la nueva fila insertada en pedidos)
     INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido, fecha_registro)
     VALUES (NEW.id_cliente, NEW.fecha, NOW());
 
-    -- En un trigger AFTER, el valor de retorno se ignora, 
-    -- pero es buena práctica retornar NEW o NULL.
     RETURN NEW;
 END;
 $$;
@@ -92,3 +86,35 @@ INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
 
 -- Verificar la auditoría
 SELECT * FROM auditoria_pedidos;
+
+SELECT * FROM productos_json
+WHERE atributos ->> 'marca' = 'Dell';
+
+SELECT nombre, correo
+FROM usuarios
+WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+
+-- Extraer todas las acciones de un usuario
+SELECT 
+    nombre, 
+    elemento_historial ->> 'fecha' AS fecha,
+    elemento_historial ->> 'accion' AS accion
+FROM 
+    usuarios,
+    jsonb_array_elements(historial_actividad) AS elemento_historial
+WHERE 
+    nombre = 'Laura Gómez';
+
+-- Ver todas las rutas desde San Luis Potosí
+SELECT 
+    c_origen.nombre AS origen,
+    c_destino.nombre AS destino,
+    r.distancia_km
+FROM 
+    rutas r
+JOIN 
+    ciudades c_origen ON r.id_origen = c_origen.id
+JOIN 
+    ciudades c_destino ON r.id_destino = c_destino.id
+WHERE 
+    c_origen.nombre = 'San Luis Potosí';
