@@ -48,11 +48,11 @@ jobs:
 
     - name: Insert data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql        
 
     - name: Query data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f script.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f script.sql
        
     - name: Run tests
       run: |
