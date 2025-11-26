@@ -22,3 +22,29 @@ CREATE TABLE detalle_pedido (
     id_producto INT REFERENCES productos(id_producto),
     cantidad INT
 );
+
+CREATE TABLE auditoria_pedidos (
+    id_auditoria SERIAL PRIMARY KEY,
+    id_cliente INT,
+    fecha_pedido DATE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE usuarios_log (
+    id_usuario SERIAL PRIMARY KEY,
+    nombre TEXT,
+    historial_actividad JSONB
+);
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB
+);
+
+-- Nodos: ciudades
+CREATE TABLE ciudades (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
