@@ -83,3 +83,37 @@ EXECUTE FUNCTION registrar_auditoria_pedido();
 
 
 
+
+SELECT *
+FROM productos_json
+WHERE atributos ->> 'marca' = 'Dell';
+
+
+SELECT nombre, correo
+FROM usuarios
+WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+
+
+SELECT
+    u.nombre,
+    (actividad->>'fecha') AS fecha,
+    (actividad->>'accion') AS accion
+FROM
+    usuarios u,
+    jsonb_array_elements(u.historial_actividad) AS actividad
+WHERE
+    u.nombre = 'Laura Gómez';
+
+SELECT
+    c_origen.nombre AS origen,
+    c_destino.nombre AS destino,
+    r.distancia_km
+FROM
+    rutas r
+JOIN
+    ciudades c_origen ON r.id_origen = c_origen.id
+JOIN
+    ciudades c_destino ON r.id_destino = c_destino.id
+WHERE
+    c_origen.nombre = 'San Luis Potosí';
+
