@@ -19,7 +19,7 @@ def test_vista_detalle_pedidos_existencia():
     cur.execute("SELECT * FROM vista_detalle_pedidos;")
     fila = cur.fetchall()
     
-    assert fila.lenght() > 0
+    assert len(fila) > 0
   
     cur.close()
     conn.close()
