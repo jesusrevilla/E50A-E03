@@ -1,1 +1,1 @@
-
+SELECT * FROM vista_detalle_pedidos;
