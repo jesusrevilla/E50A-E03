@@ -1,119 +1,93 @@
-
-CREATE VIEW vista_detalle_pedidos AS
-SELECT
+CREATE OR REPLACE VIEW vista_detalle_pedidos AS
+SELECT 
     p.id_pedido,
-    c.nombre AS nombre_cliente,
-    pr.nombre AS nombre_producto,
+    c.nombre as nombre_cliente,
+    pr.nombre as nombre_producto,
     dp.cantidad,
-    pr.precio,
-    (dp.cantidad * pr.precio) AS total_linea
-FROM
-    detalle_pedido dp
-JOIN
-    pedidos p ON dp.id_pedido = p.id_pedido
-JOIN
-    clientes c ON p.id_cliente = c.id_cliente
-JOIN
-    productos pr ON dp.id_producto = pr.id_producto;
+    (pr.precio * dp.cantidad) as total_linea
+FROM pedidos p
+JOIN clientes c ON p.id_cliente = c.id_cliente
+JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+JOIN productos pr ON dp.id_producto = pr.id_producto;
 
-
-CREATE OR REPLACE FUNCTION registrar_pedido(
+-- 2. PROCEDIMIENTO ALMACENAD
+CREATE OR REPLACE PROCEDURE registrar_pedido(
     p_id_cliente INT,
     p_fecha DATE,
     p_id_producto INT,
     p_cantidad INT
 )
-RETURNS VOID AS $$
+LANGUAGE plpgsql
+AS $$
 DECLARE
-    v_new_pedido_id INT;
+    v_id_pedido INT;
 BEGIN
-    -- Insertar pedido y OBTENER el nuevo ID (PostgreSQL RETURNING)
     INSERT INTO pedidos (id_cliente, fecha)
     VALUES (p_id_cliente, p_fecha)
-    RETURNING id_pedido INTO v_new_pedido_id;
+    RETURNING id_pedido INTO v_id_pedido;
 
-    -- Insertar el detalle del pedido
     INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad)
-    VALUES (v_new_pedido_id, p_id_producto, p_cantidad);
+    VALUES (v_id_pedido, p_id_producto, p_cantidad);
 
 END;
-$$ LANGUAGE plpgsql;
- 
+$$;
 
-
-CREATE OR REPLACE FUNCTION total_gastado_por_cliente(
-    p_id_cliente INT
-)
-RETURNS DECIMAL(10, 2) AS $$
+-- 3. FUNCIÓN
+CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT)
+RETURNS DECIMAL(10,2)
+LANGUAGE plpgsql
+AS $$
 DECLARE
-    total_gastado DECIMAL(10, 2);
+    total DECIMAL(10,2);
 BEGIN
-    -- Utiliza COALESCE para devolver 0.00 si no hay pedidos
-    SELECT COALESCE(SUM(dp.cantidad * p.precio), 0.00)
-    INTO total_gastado
-    FROM detalle_pedido dp
-    JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
-    JOIN productos p ON dp.id_producto = p.id_producto
-    WHERE ped.id_cliente = p_id_cliente;
+    SELECT COALESCE(SUM(pr.precio * dp.cantidad), 0)
+    INTO total
+    FROM pedidos p
+    JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+    JOIN productos pr ON dp.id_producto = pr.id_producto
+    WHERE p.id_cliente = p_id_cliente;
 
-    RETURN total_gastado;
+    RETURN total;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
+CREATE INDEX idx_cliente_producto ON detalle_pedido(id_pedido, id_producto);
 
-CREATE INDEX idx_cliente_producto ON detalle_pedido (id_producto, cantidad);
-
-
-CREATE OR REPLACE FUNCTION registrar_auditoria_pedido()
-RETURNS TRIGGER AS $$
+-- 4. TRIGGERS
+CREATE OR REPLACE FUNCTION fn_auditar_pedido()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
 BEGIN
-    -- NEW hace referencia a la fila que se acaba de insertar
     INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido)
     VALUES (NEW.id_cliente, NEW.fecha);
-
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
+CREATE TRIGGER tr_auditar_pedido
+    AFTER INSERT ON pedidos
+    FOR EACH ROW
+    EXECUTE FUNCTION fn_auditar_pedido();
 
-CREATE TRIGGER registrar_auditoria_pedido
-AFTER INSERT ON pedidos
-FOR EACH ROW
-EXECUTE FUNCTION registrar_auditoria_pedido();
-
-
-
-
-SELECT *
-FROM productos_json
+-- 5. NoSQL
+SELECT * FROM productos_json
 WHERE atributos ->> 'marca' = 'Dell';
-
 
 SELECT nombre, correo
 FROM usuarios
 WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
 
+SELECT nombre, jsonb_array_elements(historial_actividad) as accion
+FROM usuarios
+WHERE nombre = 'Laura Gómez';
 
-SELECT
-    u.nombre,
-    (actividad->>'fecha') AS fecha,
-    (actividad->>'accion') AS accion
-FROM
-    usuarios u,
-    jsonb_array_elements(u.historial_actividad) AS actividad
-WHERE
-    u.nombre = 'Laura Gómez';
-
-SELECT
-    c_origen.nombre AS origen,
-    c_destino.nombre AS destino,
+-- 6. GRAFOS 
+SELECT 
+    c1.nombre as origen,
+    c2.nombre as destino,
     r.distancia_km
-FROM
-    rutas r
-JOIN
-    ciudades c_origen ON r.id_origen = c_origen.id
-JOIN
-    ciudades c_destino ON r.id_destino = c_destino.id
-WHERE
-    c_origen.nombre = 'San Luis Potosí';
-
+FROM rutas r
+JOIN ciudades c1 ON r.id_origen = c1.id
+JOIN ciudades c2 ON r.id_destino = c2.id
+WHERE c1.nombre = 'San Luis Potosí';
