@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    
     services:
       postgres:
         image: postgres:14
@@ -31,29 +32,32 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.X'
+        python-version: '3.10'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Wait for PostgreSQL
       run: |
-        sleep 10
+        sleep 5
 
-    - name: Set up database schema and data
+    - name: Set up database schema
+      # Se ejecuta el script 01 contra la base de datos 'test_db'
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
 
     - name: Insert data
+      # Se ejecuta el script 02 contra 'test_db' (antes decía 'exercises')
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql
 
-    - name: Query data
+    - name: Load Logic (Functions, Sp, Views)
+      # Se ejecuta el script 03 contra 'test_db'
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_funciones_logicas.sql
-        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_funciones_logicas.sql
+
     - name: Run tests
       run: |
         pytest
