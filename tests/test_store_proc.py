@@ -5,6 +5,33 @@ import subprocess
 import pytest
 
 
+_PSQL_STATUS_TOKENS = {
+    "BEGIN", "COMMIT", "ROLLBACK",
+    "INSERT", "UPDATE", "DELETE",
+    "CALL", "DO",
+    "CREATE", "DROP", "ALTER", "TRUNCATE",
+    "GRANT", "REVOKE", "SET",
+}
+
+
+def _clean_psql_lines(stdout: str) -> list[str]:
+    lines: list[str] = []
+    for raw in stdout.splitlines():
+        s = raw.strip()
+        if not s:
+            continue
+
+        if s.startswith(("NOTICE:", "WARNING:")):
+            continue
+
+        first = s.split()[0]
+        if first in _PSQL_STATUS_TOKENS:
+            continue
+
+        lines.append(s)
+    return lines
+
+
 def _run_psql(sql: str, db: str) -> list[str]:
     env = os.environ.copy()
     env.setdefault("PGHOST", "localhost")
@@ -16,12 +43,13 @@ def _run_psql(sql: str, db: str) -> list[str]:
         "-h", env["PGHOST"],
         "-U", env["PGUSER"],
         "-d", db,
+        "-q",
         "-At",
         "-F", "\t",
         "-c", sql,
     ]
     out = subprocess.check_output(cmd, env=env, stderr=subprocess.STDOUT, text=True)
-    return [line for line in out.splitlines() if line.strip() != ""]
+    return _clean_psql_lines(out)
 
 
 def psql(sql: str) -> list[str]:
@@ -33,7 +61,6 @@ def psql(sql: str) -> list[str]:
 
 
 def test_procedure_exists():
-    # Debe existir el procedimiento registrar_pedido (README). :contentReference[oaicite:3]{index=3}
     r = psql("""
       SELECT COUNT(*)
       FROM pg_proc
@@ -44,8 +71,6 @@ def test_procedure_exists():
 
 
 def test_call_registrar_pedido_inserts_rows():
-    # Ejemplo del README: CALL registrar_pedido(1,'2025-05-20',2,3)
-    # Lo hacemos en transacción y ROLLBACK para que no ensucie la BD.
     out = psql("""
       BEGIN;
 
@@ -59,13 +84,7 @@ def test_call_registrar_pedido_inserts_rows():
 
       ROLLBACK;
     """)
-    
-    # --- FIX START ---
-    # Filter out transaction messages (BEGIN, ROLLBACK)
-    out = [line for line in out if line not in ('BEGIN', 'COMMIT', 'ROLLBACK')]
-    # --- FIX END ---
 
-    # Esperamos 4 líneas: pedidos_before, detalle_before, pedidos_after, detalle_after
     assert len(out) >= 4, f"Salida inesperada: {out}"
 
     pedidos_before = int(out[0])
