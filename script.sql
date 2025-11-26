@@ -59,3 +59,14 @@ INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
 
 -- Verificar la auditoría
 SELECT * FROM auditoria_pedidos;
+
+SELECT nombre,correo,actividad->>'fecha' AS fecha,actividad->>'accion' AS accion
+FROM usuarios,jsonb_array_elements(historial_actividad) AS actividad WHERE id = 1;  
+
+
+SELECT 
+    o.nombre AS ORIGEN,d.nombre AS DESTINO,r.distancia_km
+FROM rutas r
+JOIN ciudades o ON r.id_origen = o.id
+JOIN ciudades d ON r.id_destino = d.id
+WHERE o.nombre = 'San Luis Potosí';
