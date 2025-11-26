@@ -1,68 +1,72 @@
-name: Run PostgreSQL Tests
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  test:
+  postgres:
+    name: Set up PostgreSQL Database
     runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres:14
-        env:
-          POSTGRES_DB: test_db   # Nombre de la base de datos
-          POSTGRES_USER: postgres  # Usuario de PostgreSQL
-          POSTGRES_PASSWORD: postgres  # Contraseña de PostgreSQL
+        image: postgres:13
         ports:
-          - 5432:5432  # Puerto de PostgreSQL
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="pg_isready -U postgres -d test_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3  # Descargar el código del repositorio
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.8'  # Usamos Python 3.8 o la versión que necesites
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt  # Instalar dependencias
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        # Esperar a que PostgreSQL esté disponible
-        until PGPASSWORD=${{ secrets.PG_PASSWORD }} psql -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c '\q'; do
-          echo "Waiting for PostgreSQL to be available..."
-          sleep 2
-        done
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
 
-    - name: Set up database schema and data
-      run: |
-        # Ejecutar el archivo SQL para crear las tablas
-        PGPASSWORD=${{ secrets.PG_PASSWORD }} psql -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f 01_create_tables.sql
+      - name: Run tests
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+        run: |
+          pytest tests/test_func.py
+          pytest tests/test_grap.py
+          pytest tests/test_index.py
+          pytest tests/test_json.py
+          pytest tests/test_store_proc.py
+          pytest tests/test_trigger.py
+          pytest tests/test_view.py
 
-    - name: Insert data
-      run: |
-        # Ejecutar el archivo SQL para insertar los datos
-        PGPASSWORD=${{ secrets.PG_PASSWORD }} psql -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f 02_insert_data.sql
+      - name: Cleanup
+        run: |
+          echo "Cleaning up..."
+          docker-compose down || true
 
-    - name: Query data
-      run: |
-        # Ejecutar una consulta para verificar los datos insertados (opcional)
-        PGPASSWORD=${{ secrets.PG_PASSWORD }} psql -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f 03_retrieve_everything_from_a_table.sql
-
-    - name: Run tests
-      run: |
-        # Ejecutar las pruebas de pytest
-        pytest
