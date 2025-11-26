@@ -1,4 +1,4 @@
-name: Run PostgreSQL Tests
+name: Run PostgreSQL NoSQL (Arrays & Graphs)
 
 on:
   push:
@@ -42,18 +42,17 @@ jobs:
       run: |
         sleep 10
 
-    - name: Set up database schema and data
+    # Tablas (Arrays y Grafos)
+    - name: 01 Create Tables
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ${{ github.workspace }}/01_create_tables.sql
 
-    - name: Insert data
+    # Datos
+    - name: 02 Insert Data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ${{ github.workspace }}/02_insert_data.sql    
 
-    - name: Query data
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
-        
+    # Tests
     - name: Run tests
       run: |
-        pytest
+        pytest tests/test_grap.py
