@@ -1,5 +1,5 @@
 
--- Parte 1
+-- Parte 1 exámen
 CREATE OR REPLACE VIEW vista_detalle_pedidos AS
 SELECT 
     p.id_pedido,
