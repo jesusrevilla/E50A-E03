@@ -71,7 +71,7 @@ def test_grafo_rutas_desde_slp():
         ciudades = {row[0] for row in cur.fetchall()}
 
         assert "Guadalajara" in ciudades
-        assert "CDMX" in ciudades
+        assert "San Luis Potosí" in ciudades
         assert "Monterrey" in ciudades
 
     finally:
