@@ -27,12 +27,15 @@ def init_db():
     conn.autocommit = True
     cur = conn.cursor()
     try:
+        cur.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+
         run_sql_file(cur, "01_create_tables.sql")
         run_sql_file(cur, "02_insert_data.sql")
         run_sql_file(cur, "script.sql")
     finally:
         cur.close()
         conn.close()
+
 
 def test_total_gastado_por_cliente():
     init_db()
