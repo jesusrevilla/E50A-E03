@@ -32,9 +32,10 @@ CREATE TABLE auditoria_pedidos (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE productos_json (
+CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
     nombre TEXT,
-    atributos JSONB
+    correo TEXT,
+    historial_actividad JSONB
 );
 
