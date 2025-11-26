@@ -22,3 +22,9 @@ CREATE TABLE detalle_pedido (
     id_producto INT REFERENCES productos(id_producto),
     cantidad INT
 );
+
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
+);
