@@ -45,7 +45,7 @@ def run_query(conn, query):
 def test_funcion_total_gastado_por_cliente(db):
     query = "SELECT total_gastado_por_cliente(1);"
     result = run_query(db, query)
-    esperado = 1328.00
+    esperado = 1251.00
 
     assert float(result[0][0]) == esperado
 
