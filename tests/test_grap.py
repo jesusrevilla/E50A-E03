@@ -1,38 +1,69 @@
+import os
+from pathlib import Path
+
 import psycopg2
-import pytest
 
-DB_CONFIG = "dbname=tu_base_datos user=tu_usuario password=tu_password host=localhost"
 
-def test_grafo_rutas():
-    """
-    6. Grafos: Valida la conexión entre nodos (ciudades).
-    Busca una ruta de 2 saltos: SLP(1) -> CDMX(5) -> Monterrey(4).
-    """
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "postgres"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
+
+
+def run_sql_file(cur, filename: str) -> None:
+    path = ROOT / filename
+    with path.open(encoding="utf-8") as f:
+        cur.execute(f.read())
+
+
+def init_db():
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(DB_CONFIG)
-        cur = conn.cursor()
-        
-        # Query de grafo para buscar conexión indirecta
-        query = """
-        SELECT c1.nombre, c2.nombre, c3.nombre
-        FROM rutas r1
-        JOIN rutas r2 ON r1.id_destino = r2.id_origen
-        JOIN ciudades c1 ON r1.id_origen = c1.id
-        JOIN ciudades c2 ON r1.id_destino = c2.id
-        JOIN ciudades c3 ON r2.id_destino = c3.id
-        WHERE c1.nombre = 'San Luis Potosí' AND c3.nombre = 'Monterrey';
-        """
-        cur.execute(query)
-        ruta = cur.fetchone()
-        
-        assert ruta is not None, "No se encontró la ruta SLP -> CDMX -> Monterrey"
-        assert ruta[1] == 'CDMX', "La escala debería ser CDMX"
-        
-        print("✅ Test Grafos: PASÓ")
+        run_sql_file(cur, "01_create_tables.sql")
+        run_sql_file(cur, "02_insert_data.sql")
+        run_sql_file(cur, "script.sql")
+    finally:
         cur.close()
         conn.close()
-    except Exception as e:
-        pytest.fail(f"Error en test_grap: {e}")
 
-if __name__ == "__main__":
-    test_grafo_rutas()
+
+def test_rutas_desde_san_luis_potosi():
+    init_db()
+
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT c_origen.nombre AS ciudad_origen,
+                   c_destino.nombre AS ciudad_destino,
+                   r.distancia_km
+            FROM rutas r
+            JOIN ciudades c_origen  ON r.id_origen  = c_origen.id
+            JOIN ciudades c_destino ON r.id_destino = c_destino.id
+            WHERE c_origen.nombre = 'San Luis Potosí'
+            ORDER BY ciudad_destino;
+            """
+        )
+        rows = cur.fetchall()
+
+        # SLP -> Querétaro (180) y SLP -> CDMX (410)
+        assert len(rows) == 2
+        destinos = [r[1] for r in rows]
+        distancias = [r[2] for r in rows]
+
+        assert sorted(destinos) == ["CDMX", "Querétaro"]
+        assert sorted(distancias) == [180, 410]
+    finally:
+        cur.close()
+        conn.close()
