@@ -78,7 +78,7 @@ WITH RECURSIVE grafos AS (
     FROM grafos rd
     JOIN rutas r2 ON rd.id_destino = r2.id_origen
     JOIN ciudades c2 ON r2.id_destino = c2.id
-)
+);
 
 
 
