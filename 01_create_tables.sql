@@ -45,7 +45,7 @@ CREATE TABLE usuarios (
     historial_actividad JSONB
 );
 
--- GRAFOS 
+-- GRAF
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
     nombre TEXT NOT NULL
