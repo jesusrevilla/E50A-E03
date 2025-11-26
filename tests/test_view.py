@@ -8,7 +8,7 @@ def test_view_detalle_pedidos():
     cursor.execute("SELECT * FROM vista_detalle_pedidos;")
     result = cursor.fetchall()
     
-    # Verificar que la vista devuelva los resultados esperados
+    # Verificar que la vista devuelve los resultados esperados
     assert len(result) > 0, "La vista 'vista_detalle_pedidos' no devuelve resultados."
     
     cursor.close()
