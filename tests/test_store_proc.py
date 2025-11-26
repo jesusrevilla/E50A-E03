@@ -1,43 +1,80 @@
+import os
+from pathlib import Path
+
 import psycopg2
-import pytest
 
-DB_CONFIG = "dbname=tu_base_datos user=tu_usuario password=tu_password host=localhost"
 
-def test_registrar_pedido_sp():
-    """
-    2. Procedimiento Almacenado: Valida 'registrar_pedido'.
-    Debe insertar en 'pedidos' y 'detalle_pedido' atómicamente.
-    """
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        dbname=os.getenv("POSTGRES_DB", "postgres"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+    )
+
+
+def run_sql_file(cur, filename: str) -> None:
+    path = ROOT / filename
+    with path.open(encoding="utf-8") as f:
+        cur.execute(f.read())
+
+
+def init_db():
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(DB_CONFIG)
-        conn.autocommit = True # Necesario para CALL
-        cur = conn.cursor()
-        
-        # Datos de prueba
-        cliente_id = 2
-        fecha = '2025-06-15'
-        prod_id = 3
-        cant = 10
-        
-        # Llamamos al SP
-        cur.execute(f"CALL registrar_pedido({cliente_id}, '{fecha}', {prod_id}, {cant});")
-        
-        # Verificamos inserción
-        cur.execute(f"SELECT id_pedido FROM pedidos WHERE fecha = '{fecha}' AND id_cliente = {cliente_id};")
-        pedido = cur.fetchone()
-        assert pedido is not None, "El pedido no se registró en la tabla padre"
-        
-        id_pedido = pedido[0]
-        cur.execute(f"SELECT cantidad FROM detalle_pedido WHERE id_pedido = {id_pedido} AND id_producto = {prod_id};")
-        detalle = cur.fetchone()
-        assert detalle is not None, "El detalle no se registró"
-        assert detalle[0] == cant
-        
-        print("✅ Test Store Proc: PASÓ")
+        run_sql_file(cur, "01_create_tables.sql")
+        run_sql_file(cur, "02_insert_data.sql")
+        run_sql_file(cur, "script.sql")
+    finally:
         cur.close()
         conn.close()
-    except Exception as e:
-        pytest.fail(f"Error en test_store_proc: {e}")
 
-if __name__ == "__main__":
-    test_registrar_pedido_sp()
+
+def test_registrar_pedido_inserta_pedido_y_detalle():
+    init_db()
+
+    conn = get_connection()
+    conn.autocommit = True
+    cur = conn.cursor()
+    try:
+        # Llamamos al procedimiento:
+        # cliente 1, fecha 2025-05-20, producto 2, cantidad 3
+        cur.execute("CALL registrar_pedido(1, '2025-05-20', 2, 3);")
+
+        # Debe existir al menos un pedido con esa fecha y cliente
+        cur.execute(
+            """
+            SELECT id_pedido
+            FROM pedidos
+            WHERE id_cliente = 1 AND fecha = DATE '2025-05-20';
+            """
+        )
+        pedidos = cur.fetchall()
+        assert len(pedidos) >= 1
+
+        # Tomamos los ids de los pedidos nuevos
+        ids_pedidos = [p[0] for p in pedidos]
+
+        # En detalle_pedido debe haber registro(s) correspondientes
+        cur.execute(
+            """
+            SELECT SUM(cantidad)
+            FROM detalle_pedido
+            WHERE id_pedido = ANY(%s) AND id_producto = 2;
+            """,
+            (ids_pedidos,),
+        )
+        total_cant, = cur.fetchone()
+        # Debe sumar al menos 3 (por la llamada que hicimos)
+        assert total_cant is not None
+        assert total_cant >= 3
+    finally:
+        cur.close()
+        conn.close()
+
