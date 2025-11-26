@@ -9,10 +9,12 @@ def run_query(query):
     )
     cur = conn.cursor()
     cur.execute(query)
+    
     try:
         result = cur.fetchall()
     except psycopg2.ProgrammingError:
         result = []
+    
     conn.commit()
     cur.close()
     conn.close()
