@@ -31,7 +31,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'  # Es recomendable usar una versión más estable
+        python-version: '3.9'
 
     - name: Install dependencies
       run: |
@@ -41,7 +41,7 @@ jobs:
     - name: Wait for PostgreSQL to start
       run: |
         echo "Waiting for PostgreSQL to start..."
-        sleep 15  # Proporcionamos un poco más de tiempo para la inicialización de PostgreSQL
+        sleep 15
 
     - name: Set up database schema and data
       run: |
@@ -51,16 +51,21 @@ jobs:
     - name: Insert data
       run: |
         echo "Inserting sample data into database..."
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ./02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ./02_insert_data.sql
 
-    - name: Query data to verify (direct in workflow)
+    - name: Set up functions, procedures, views, and triggers
+      run: |
+        echo "Creating functions, procedures, views, and triggers..."
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ./03_functions_and_procedures.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ./04_views_and_indexes.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ./05_triggers.sql
+
+    - name: Query data to verify
       run: |
         echo "Retrieving data from the database to verify..."
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -c "SELECT * FROM clientes; SELECT * FROM productos; SELECT * FROM pedidos; SELECT * FROM detalle_pedido;"
-        
+
     - name: Run tests
       run: |
         echo "Running tests..."
-        pytest --maxfail=1 --disable-warnings -q  # Añadí algunas configuraciones útiles para pytest
-
-
+        pytest --maxfail=1 --disable-warnings -q
