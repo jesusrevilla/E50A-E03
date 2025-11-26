@@ -14,6 +14,7 @@ JOIN productos ON detalle_pedido.id_producto = productos.id_producto;
 SELECT * FROM vista_detalle_pedidos;
 
 --Ejercicio 2
+
 CREATE PROCEDURE registrar_pedido(
     cliente_id INTEGER,
     fecha_pedido DATE,
