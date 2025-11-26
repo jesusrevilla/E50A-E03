@@ -1,4 +1,5 @@
-from db import run_query
+from app.db import run_query
+
 
 def test_registrar_pedido():
     # Inserta un pedido
