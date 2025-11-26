@@ -4,21 +4,12 @@ from conftest import db_cursor
 class TestFunction:
     def test_total_gastado_por_cliente(self, db_cursor):
         """Prueba la función 'total_gastado_por_cliente' con datos iniciales."""
-        
-        # Cliente 1 (Ana Torres):
-        # Laptop: 1 * 1200.00 = 1200.00
-        # Mouse: 2 * 25.50 = 51.00
-        # Total: 1251.00
         db_cursor.execute("SELECT total_gastado_por_cliente(1);")
         total_ana = db_cursor.fetchone()[0]
-        
-        # Cliente 2 (Luis Pérez):
-        # Teclado: 1 * 45.00 = 45.00
-        # Total: 45.00
+
         db_cursor.execute("SELECT total_gastado_por_cliente(2);")
         total_luis = db_cursor.fetchone()[0]
-        
-        # Cliente 99 (Inexistente)
+
         db_cursor.execute("SELECT total_gastado_por_cliente(99);")
         total_inexistente = db_cursor.fetchone()[0]
         
