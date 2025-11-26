@@ -58,6 +58,27 @@ WHERE
     u.nombre = 'Pedro Ruiz';
 
 --Gráfos
+WITH RECURSIVE grafos AS (
+    SELECT 
+        c.id AS ciudad_id,
+        c.nombre AS ciudad,
+        r.id_destino,
+        r.distancia_km,
+        c.nombre::TEXT AS ruta
+    FROM ciudades c
+    JOIN rutas r ON c.id = r.id_origen
+    WHERE c.id = 1
+    UNION ALL
+    SELECT
+        c2.id AS ciudad_id,
+        c2.nombre AS ciudad,
+        r2.id_destino,
+        r2.distancia_km,
+        rd.ruta || ' - ' || c2.nombre
+    FROM grafos rd
+    JOIN rutas r2 ON rd.id_destino = r2.id_origen
+    JOIN ciudades c2 ON r2.id_destino = c2.id
+)
 
 
 
