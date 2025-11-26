@@ -17,17 +17,14 @@ def db():
 
     sql_dir = Path(".")
 
-    # Crear tablas
     with open(sql_dir / "01_create_tables.sql", "r") as f:
         with conn.cursor() as cur:
             cur.execute(f.read())
 
-    # Insertar datos iniciales
     with open(sql_dir / "02_insert_data.sql", "r") as f:
         with conn.cursor() as cur:
             cur.execute(f.read())
 
-    # Crear funciones, vistas, triggers, procedimiento, etc.
     with open(sql_dir / "script.sql", "r") as f:
         with conn.cursor() as cur:
             cur.execute(f.read())
