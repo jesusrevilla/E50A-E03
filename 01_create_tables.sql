@@ -31,5 +31,29 @@ CREATE TABLE auditoria_pedidos (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB  -- Para atributos variables de productos
+);
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    correo TEXT,
+    historial_actividad JSONB -- Para historial de actividad (Arreglo de JSON)
+);
+
+CREATE TABLE ciudades (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+CREATE TABLE rutas (
+    id_origen INT REFERENCES ciudades(id),
+    id_destino INT REFERENCES ciudades(id),
+    distancia_km INT,
+    PRIMARY KEY (id_origen, id_destino)
+);
 
 
