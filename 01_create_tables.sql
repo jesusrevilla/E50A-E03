@@ -2,6 +2,7 @@ SELECT 'CREATE DATABASE exercises'
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'exercises')
 \gexec;
 
+
 -- =========================================================
 -- 1) Crear TODO en la DB actual (test_db)
 -- =========================================================
