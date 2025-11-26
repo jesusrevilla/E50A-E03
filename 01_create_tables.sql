@@ -1,5 +1,4 @@
 
--- 01_create_tables.sql
 -- Crear las tablas principales y tablas auxiliares (auditoría, JSON, grafo)
 
 CREATE TABLE clientes (
