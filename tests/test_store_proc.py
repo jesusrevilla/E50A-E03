@@ -35,4 +35,3 @@ def test_registrar_pedido():
 
     assert len(pedido_result) == 1
     assert detalle_result == expected_detalle
-
