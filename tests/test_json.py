@@ -27,3 +27,18 @@ def test_productos_con_marca_dell():
     ]
 
     assert result == expected_result
+
+def test_usuarios_con_inicio_sesion():
+    query = """
+        SELECT nombre, correo
+        FROM usuarios
+        WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+    """
+    result = run_query(query)
+
+    expected_result = [
+        ('Laura Gómez', 'laura@example.com'),
+        ('Pedro Ruiz', 'pedro@example.com')
+    ]
+
+    assert result == expected_result
