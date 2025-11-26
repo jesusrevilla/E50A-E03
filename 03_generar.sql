@@ -60,3 +60,35 @@ END;
 $$;
 
 SELECT total_gastado_por_cliente(1);
+
+-- Indice
+CREATE INDEX idx_pedido_producto ON detalle_pedido (id_pedido, id_producto);
+
+-- Funcion Trigger
+CREATE OR REPLACE FUNCTION fn_auditoria_pedido()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Insertamos en la tabla de auditoría los datos que vienen 
+    -- en la variable NEW (la nueva fila insertada en pedidos)
+    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido, fecha_registro)
+    VALUES (NEW.id_cliente, NEW.fecha, NOW());
+
+    -- En un trigger AFTER, el valor de retorno se ignora, 
+    -- pero es buena práctica retornar NEW o NULL.
+    RETURN NEW;
+END;
+$$;
+
+-- trigger
+CREATE TRIGGER trg_registrar_auditoria
+AFTER INSERT ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION fn_auditoria_pedido();
+
+-- Insertar un nuevo pedido
+INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
+
+-- Verificar la auditoría
+SELECT * FROM auditoria_pedidos;
