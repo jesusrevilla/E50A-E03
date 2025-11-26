@@ -12,16 +12,16 @@ INSERT INTO pedidos (id_cliente, fecha) VALUES
 (2, '2025-05-02');
 
 INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
-(1, 1, 1),  -- Ana compra 1 Laptop
-(1, 2, 2),  -- Ana compra 2 Mouse
-(2, 3, 1);  -- Luis compra 1 Teclado
+(1, 1, 1),  
+(1, 2, 2),  
+(2, 3, 1);  
 
 INSERT INTO ciudades (nombre) VALUES
 ('San Luis Potosí'), ('Querétaro'), ('Guadalajara'), ('Monterrey'), ('CDMX');
 
 INSERT INTO rutas (id_origen, id_destino, distancia_km) VALUES
-(1, 2, 180),  -- SLP → Querétaro
-(2, 3, 350),  -- Querétaro → Guadalajara
-(1, 5, 410),  -- SLP → CDMX
-(5, 4, 900),  -- CDMX → Monterrey
-(3, 4, 700);  -- Guadalajara → Monterrey
+(1, 2, 180),  
+(2, 3, 350),  
+(1, 5, 410),  
+(5, 4, 900),  
+(3, 4, 700);  
