@@ -1,24 +1,32 @@
+-- ELIMINAR TABLAS EN ORDEN INVERSO A DEPENDENCIAS
+DROP TABLE IF EXISTS auditoria_pedidos CASCADE;
+DROP TABLE IF EXISTS detalle_pedido CASCADE;
+DROP TABLE IF EXISTS pedidos CASCADE;
+DROP TABLE IF EXISTS productos CASCADE;
+DROP TABLE IF EXISTS clientes CASCADE;
+
+DROP TABLE IF EXISTS rutas CASCADE;
+DROP TABLE IF EXISTS ciudades CASCADE;
+
+-- TABLAS PRINCIPALES
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
     correo VARCHAR(100)
 );
 
--- Creación de la tabla productos
 CREATE TABLE productos (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
-    precio DECIMAL(10, 2)
+    precio DECIMAL(10,2)
 );
 
--- Creación de la tabla pedidos
 CREATE TABLE pedidos (
     id_pedido SERIAL PRIMARY KEY,
     id_cliente INT REFERENCES clientes(id_cliente),
     fecha DATE
 );
 
--- Creación de la tabla detalle_pedido
 CREATE TABLE detalle_pedido (
     id_detalle SERIAL PRIMARY KEY,
     id_pedido INT REFERENCES pedidos(id_pedido),
@@ -26,7 +34,6 @@ CREATE TABLE detalle_pedido (
     cantidad INT
 );
 
--- Creación de la tabla de auditoría (para el ejercicio de Triggers)
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
     id_cliente INT,
@@ -34,7 +41,7 @@ CREATE TABLE auditoria_pedidos (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Creación de tablas para el ejercicio de Grafos
+-- TABLAS PARA GRAFOS
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
     nombre TEXT NOT NULL
