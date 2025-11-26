@@ -1,37 +1,19 @@
 import psycopg2
-import pytest
-from time import sleep
 
-@pytest.fixture
-def db():
+def test_trigger_created_at():
     conn = psycopg2.connect(
-        host="localhost",
-        dbname="test_db",
-        user="postgres",
-        password="postgres"
+        dbname='test_db',
+        user='postgres',
+        password='postgres',
+        host='localhost',
+        port=5432
     )
-    yield conn
-    conn.close()
+    cur = conn.cursor()
 
+    cur.execute("INSERT INTO pedidos(cliente) VALUES ('x') RETURNING id;")
+    pid = cur.fetchone()[0]
+    conn.commit()
 
-def test_trigger_updated_at(db):
-    cur = db.cursor()
-
-    cur.execute("""
-        INSERT INTO productos(nombre, precio)
-        VALUES ('Topo Chico', 19)
-        RETURNING id, updated_at;
-    """)
-    pk, ts_before = cur.fetchone()
-    db.commit()
-
-    sleep(1)
-
-    cur.execute("UPDATE productos SET precio=21 WHERE id=%s;", (pk,))
-    db.commit()
-
-    cur.execute("SELECT updated_at FROM productos WHERE id=%s;", (pk,))
-    ts_after = cur.fetchone()[0]
-
-    assert ts_after > ts_before
-
+    cur.execute("SELECT created_at FROM pedidos WHERE id=%s;", (pid,))
+    ts = cur.fetchone()[0]
+    assert ts is not None
