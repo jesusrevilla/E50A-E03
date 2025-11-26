@@ -18,8 +18,7 @@ JOIN clientes  c  ON p.id_cliente  = c.id_cliente
 JOIN productos pr ON d.id_producto = pr.id_producto;
 
 
-DROP PROCEDURE IF EXISTS registrar_pedido(INT, DATE, INT, INT;
-
+DROP PROCEDURE IF EXISTS registrar_pedido;
 
 CREATE OR REPLACE PROCEDURE registrar_pedido(
     p_id_cliente  INT,
@@ -32,7 +31,6 @@ AS $$
 DECLARE
     v_id_pedido INT;
 BEGIN
-    -- Insertar en pedidos
     INSERT INTO pedidos (id_cliente, fecha)
     VALUES (p_id_cliente, p_fecha)
     RETURNING id_pedido INTO v_id_pedido;
@@ -41,6 +39,7 @@ BEGIN
     VALUES (v_id_pedido, p_id_producto, p_cantidad);
 END;
 $$;
+
 
 
 DROP FUNCTION IF EXISTS total_gastado_por_cliente(INT);
