@@ -1,3 +1,6 @@
+--------------- Insertar datos -----------------------
+-- Yazmn Guerrero Guevara  182483
+
 -- Clientes
 INSERT INTO clientes (nombre, correo) VALUES
 ('Ana Torres', 'ana@example.com'),
