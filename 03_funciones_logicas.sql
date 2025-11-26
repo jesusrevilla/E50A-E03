@@ -1,10 +1,9 @@
 
--- Parte 1 exámen
 CREATE OR REPLACE VIEW vista_detalle_pedidos AS
 SELECT 
     p.id_pedido,
-    c.nombre AS cliente,
-    pr.nombre AS producto,
+    c.nombre AS nombre_cliente,
+    pr.nombre AS nombre_producto,
     dp.cantidad,
     pr.precio AS precio_unitario,
     (dp.cantidad * pr.precio) AS total_linea,
@@ -14,9 +13,7 @@ JOIN pedidos p ON dp.id_pedido = p.id_pedido
 JOIN clientes c ON p.id_cliente = c.id_cliente
 JOIN productos pr ON dp.id_producto = pr.id_producto;
 
-
--- Parte 2 
-
+-- Parte 2: Procedimiento Almacenado
 CREATE OR REPLACE PROCEDURE registrar_pedido(
     p_id_cliente INT, 
     p_fecha DATE, 
@@ -41,8 +38,7 @@ BEGIN
 END;
 $$;
 
--- Parte 3
-
+-- Parte 3: Función
 CREATE OR REPLACE FUNCTION total_gastado_por_cliente(p_id_cliente INT)
 RETURNS DECIMAL(10, 2)
 LANGUAGE plpgsql
@@ -61,10 +57,11 @@ BEGIN
 END;
 $$;
 
+-- FALTABA ESTO (Requisito del examen para test_index.py)
+CREATE INDEX IF NOT EXISTS idx_cliente_producto ON detalle_pedido(id_pedido, id_producto);
 
--- Parte 4
+-- Parte 4: Triggers
 
--- Función del trigger
 CREATE OR REPLACE FUNCTION funcion_auditoria_pedidos()
 RETURNS TRIGGER 
 LANGUAGE plpgsql
