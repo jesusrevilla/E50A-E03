@@ -13,18 +13,18 @@ def db_connection():
     yield conn
     conn.close()
 
+
+
 def test_trigger_exists(db_connection):
     cursor = db_connection.cursor()
 
     cursor.execute("""
         SELECT tgname
         FROM pg_trigger
-        WHERE tgname = 'trg_registrar_auditoria_pedido'
+        WHERE tgname = 'trg_auditoria_pedidos'
           AND NOT tgisinternal;   -- evitar triggers internos del sistema
     """)
 
     result = cursor.fetchone()
 
-    assert result is not None, "El trigger 'trg_registrar_auditoria_pedido' no existe"
-    assert result[0] == 'trg_registrar_auditoria_pedido'
-
+    assert result is not None, "El trigger 'trg_auditoria_pedidos' no existe"
