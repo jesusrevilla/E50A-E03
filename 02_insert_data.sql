@@ -19,3 +19,14 @@ INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
 (1, 1, 1),  -- Ana compra 1 Laptop
 (1, 2, 2),  -- Ana compra 2 Mouse
 (2, 3, 1);  -- Luis compra 1 Teclado
+
+INSERT INTO usuarios (nombre, correo, historial_actividad) VALUES
+('Laura Gómez', 'laura@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-02", "accion": "subio_archivo"},
+    {"fecha": "2025-05-03", "accion": "cerró_sesion"}
+]'),
+('Pedro Ruiz', 'pedro@example.com', '[
+    {"fecha": "2025-05-01", "accion": "inicio_sesion"},
+    {"fecha": "2025-05-04", "accion": "comentó_publicación"}
+]');
