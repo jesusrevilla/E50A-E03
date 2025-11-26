@@ -1,7 +1,30 @@
-from app.db import run_query
+import pytest
+# ... (incluir fixture db_connection) ...
 
+def test_grafo_rutas_desde_slp(db_connection):
+    """Verifica la consulta de rutas de grafo desde San Luis Potosí."""
+    cursor = db_connection.cursor()
 
-def test_index_cliente_producto():
-    result = run_query("EXPLAIN SELECT * FROM detalle_pedido WHERE id_pedido=1 AND id_producto=2;")
-    assert any("Index Scan" in str(r) for r in result)
+    # Consulta del examen: Ver todas las rutas desde San Luis Potosí
+    cursor.execute("""
+        SELECT
+            destino.nombre
+        FROM
+            rutas r
+        JOIN
+            ciudades origen ON r.id_origen = origen.id
+        JOIN
+            ciudades destino ON r.id_destino = destino.id
+        WHERE
+            origen.nombre = 'San Luis Potosí';
+    """)
+    
+    results = cursor.fetchall()
+    destinos = sorted([r[0] for r in results])
+    
+    # Rutas desde SLP (id 1): Querétaro (id 2) y CDMX (id 5)
+    expected_destinations = ['CDMX', 'Querétaro']
+    
+    assert destinos == expected_destinations, "La consulta de grafo no devolvió los destinos correctos."
 
+    cursor.close()
