@@ -32,7 +32,7 @@ $$
 DECLARE
     total DECIMAL(10, 2) := 0;
 BEGIN
-    SELECT SUM(p.precio)
+    SELECT SUM(p.precio * dp.cantidad)
     INTO total
     FROM pedidos ped
     JOIN detalle_pedido dp ON ped.id_pedido = dp.id_pedido
