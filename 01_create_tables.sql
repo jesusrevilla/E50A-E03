@@ -1,3 +1,5 @@
+--------------- Creación de tablas -----------------------
+-- Yazmn Guerrero Guevara  182483
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
