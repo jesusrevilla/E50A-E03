@@ -84,3 +84,5 @@ JOIN ciudades c2 ON r.id_destino = c2.id
 WHERE c1.nombre = 'San Luis Potosí';
 
 
+
+
