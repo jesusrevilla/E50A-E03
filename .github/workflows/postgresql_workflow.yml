@@ -1,3 +1,4 @@
+
 name: Run PostgreSQL Tests
 
 on:
@@ -31,7 +32,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.X'
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
@@ -40,20 +41,23 @@ jobs:
 
     - name: Wait for PostgreSQL
       run: |
-        sleep 10
+        for i in {1..10}; do
+          pg_isready -h localhost -p 5432 && break
+          sleep 3
+        done
 
-    - name: Set up database schema and data
+    - name: Set up database schema (tables)
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -v ON_ERROR_STOP=1 -f 01_create_tables.sql
 
     - name: Insert data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -v ON_ERROR_STOP=1 -f 02_insert_data.sql
 
-    - name: Query data
+    - name: Run script (views, procedures, functions, triggers, JSONB, graph)
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
-        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -v ON_ERROR_STOP=1 -f script.sql
+
     - name: Run tests
       run: |
-        pytest
+        pytest -q
