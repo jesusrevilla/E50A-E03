@@ -1,5 +1,5 @@
 import psycopg2
-from .conftest import db_connection # Asume configuración de conexión
+from .conftest import db_connection 
 
 def test_rutas_desde_san_luis_potosi():
     """Verifica que todas las rutas desde SLP estén registradas."""
@@ -16,7 +16,6 @@ def test_rutas_desde_san_luis_potosi():
     cur.execute(query)
     resultados = [row[0] for row in cur.fetchall()]
     
-    # SLP tiene rutas a Querétaro (180) y CDMX (410)
     rutas_esperadas = {'Querétaro', 'CDMX'}
     
     assert set(resultados) == rutas_esperadas
