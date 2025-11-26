@@ -1,4 +1,5 @@
-from db import run_query
+from app.db import run_query
+
 
 def test_productos_json():
     result = run_query("SELECT * FROM productos_json WHERE atributos ->> 'marca' = 'Dell';")
