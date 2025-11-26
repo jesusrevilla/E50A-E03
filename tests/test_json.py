@@ -14,3 +14,16 @@ def run_query(query):
         with conn.cursor() as cur:
             cur.execute(query)
             return cur.fetchall()
+
+def test_productos_con_marca_dell():
+    query = """
+        SELECT * FROM productos_json
+        WHERE atributos ->> 'marca' = 'Dell';
+    """
+    result = run_query(query)
+
+    expected_result = [
+        (1, 'Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}')
+    ]
+
+    assert result == expected_result
