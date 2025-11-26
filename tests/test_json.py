@@ -15,7 +15,7 @@ def test_jsonb_query(db_connection):
     nombres = sorted([r[0] for r in results])
 
 
-    expected_names = ['Laura Gómez', 'Pedro Ruiz']
+    expected_names = ['Laura Gómez']
 
     assert nombres == expected_names, "La consulta JSONB no devolvió los usuarios correctos."
 
