@@ -59,3 +59,51 @@ $$;
 SELECT total_gastado_por_cliente(1);
 -- index
 CREATE INDEX idx_cliente_producto ON detalle_pedido(id_pedido, id_producto);
+
+--trigger funcion
+CREATE OR REPLACE FUNCTION fn_registrar_auditoria_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO auditoria_pedidos (id_cliente, fecha_pedido, fecha_registro)
+    VALUES (NEW.id_cliente, NEW.fecha, NOW());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+--trigger
+CREATE TRIGGER trg_auditoria_nuevo_pedido
+AFTER INSERT ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION fn_registrar_auditoria_pedido();
+
+--probar TRIGGER
+INSERT INTO pedidos (id_cliente, fecha) 
+VALUES (1, '2025-05-20');
+SELECT * FROM auditoria_pedidos;
+
+SELECT nombre 
+FROM usuarios_log 
+WHERE historial_actividad @> '[{"accion": "compra"}]';
+
+SELECT nombre, correo
+FROM usuarios
+WHERE historial_actividad @> '[{"accion": "inicio_sesion"}]';
+
+SELECT 
+    nombre,
+    elemento->>'fecha' AS fecha,
+    elemento->>'accion' AS actividad
+FROM 
+    usuarios,
+    jsonb_array_elements(historial_actividad) AS elemento
+WHERE 
+    nombre = 'Laura Gómez';
+SELECT 
+    c1.nombre AS origen,
+    c2.nombre AS destino,
+    r.distancia_km
+FROM 
+    rutas r
+    JOIN ciudades c1 ON r.id_origen = c1.id
+    JOIN ciudades c2 ON r.id_destino = c2.id
+WHERE 
+    c1.nombre = 'San Luis Potosí';
