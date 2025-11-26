@@ -52,7 +52,7 @@ jobs:
 
     - name: Query data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_funciones_logicas.sql
         
     - name: Run tests
       run: |
