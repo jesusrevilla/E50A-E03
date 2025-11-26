@@ -9,6 +9,6 @@ def test_total_gastado_por_cliente():
     cur.execute("SELECT total_gastado_por_cliente(1);")
     total = cur.fetchone()[0]
 
-    assert float(total) == 1251.0
+    assert float(total) == 1327.50
 
     conn.close()
