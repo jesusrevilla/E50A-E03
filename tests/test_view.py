@@ -1,32 +1,18 @@
 import psycopg2
 
-def test_view_select():
+def test_vista_detalle_pedidos():
     conn = psycopg2.connect(
-        dbname='test_db',
-        user='postgres',
-        password='postgres',
-        host='localhost',
-        port=5432
+        dbname="test_db", user="postgres", password="postgres", host="localhost", port="5432"
     )
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM vista_clientes LIMIT 1;")
-    row = cur.fetchone()
-    assert row is not None
+    cur.execute("SELECT cliente, producto, cantidad, subtotal FROM vista_detalle_pedidos WHERE id_pedido = 1;")
+    rows = cur.fetchall()
 
+    assert len(rows) == 2 
 
-def test_view_logic():
-    conn = psycopg2.connect(
-        dbname='test_db',
-        user='postgres',
-        password='postgres',
-        host='localhost',
-        port=5432
-    )
-    cur = conn.cursor()
+    assert ("Ana Torres", "Laptop", 1, 1200.00) in rows
 
-    cur.execute("SELECT total FROM vista_ventas WHERE id_cliente = 1;")
-    result = cur.fetchone()
-    assert result is not None
+    assert ("Ana Torres", "Mouse", 2, 51.00) in rows
 
-
+    conn.close()
