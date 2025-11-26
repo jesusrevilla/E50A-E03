@@ -44,7 +44,7 @@ def test_procedure_exists():
 
 
 def test_call_registrar_pedido_inserts_rows():
-    # Ejemplo del README: CALL registrar_pedido(1,'2025-05-20',2,3) :contentReference[oaicite:4]{index=4}
+    # Ejemplo del README: CALL registrar_pedido(1,'2025-05-20',2,3)
     # Lo hacemos en transacción y ROLLBACK para que no ensucie la BD.
     out = psql("""
       BEGIN;
@@ -59,6 +59,12 @@ def test_call_registrar_pedido_inserts_rows():
 
       ROLLBACK;
     """)
+    
+    # --- FIX START ---
+    # Filter out transaction messages (BEGIN, ROLLBACK)
+    out = [line for line in out if line not in ('BEGIN', 'COMMIT', 'ROLLBACK')]
+    # --- FIX END ---
+
     # Esperamos 4 líneas: pedidos_before, detalle_before, pedidos_after, detalle_after
     assert len(out) >= 4, f"Salida inesperada: {out}"
 
