@@ -20,7 +20,7 @@
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_functions_and_procedures.sql
     - name: Load views and indexes
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 04_views_and_indexes.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 04_view.sql
     - name: Load triggers
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 05_triggers.sql
