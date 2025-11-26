@@ -18,7 +18,7 @@ def test_procedure_registrar_pedido():
         cur = conn.cursor()
         
         cliente_id = 1
-        producto_id = 1 -- Laptop
+        producto_id = 1
         cantidad = 5
         fecha = '2025-06-01'
         
