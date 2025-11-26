@@ -24,6 +24,13 @@ CREATE TABLE detalle_pedido (
     cantidad INT
 );
 
+CREATE TABLE productos_json (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    atributos JSONB
+);
+
+
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
     id_cliente INT,
