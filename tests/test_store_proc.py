@@ -16,13 +16,17 @@ def test_procedimiento_almacenado():
     try:
         # Llamar al procedimiento
         cur.execute("CALL registrar_pedido(1, '2025-05-20', 2, 3)")
-        conn.commit()
         
         # Verificar que se insertó el pedido
         cur.execute("SELECT COUNT(*) FROM pedidos WHERE id_cliente = 1")
         count_pedidos = cur.fetchone()[0]
         assert count_pedidos >= 2
         
+    except Exception as e:
+        conn.rollback()
+        raise e
+    else:
+        conn.commit()
     finally:
         cur.close()
         conn.close()
