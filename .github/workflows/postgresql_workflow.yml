@@ -53,13 +53,14 @@ jobs:
         echo "Inserting sample data into database..."
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ./02_insert_data.sql        
 
-    - name: Query data to verify
+    - name: Query data to verify (direct in workflow)
       run: |
         echo "Retrieving data from the database to verify..."
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f ./03_retrieve_everything_from_a_table.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -c "SELECT * FROM clientes; SELECT * FROM productos; SELECT * FROM pedidos; SELECT * FROM detalle_pedido;"
         
     - name: Run tests
       run: |
         echo "Running tests..."
         pytest --maxfail=1 --disable-warnings -q  # Añadí algunas configuraciones útiles para pytest
+
 
