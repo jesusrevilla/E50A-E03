@@ -16,7 +16,6 @@ def run_query(query):
             return cur.fetchall()
 
 def test_productos_con_marca_dell():
-    """Se deben obtener los productos con la marca 'Dell'."""
     query = """
         SELECT * FROM productos_json
         WHERE atributos ->> 'marca' = 'Dell';
