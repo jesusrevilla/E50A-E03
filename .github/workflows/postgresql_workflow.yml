@@ -31,7 +31,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.X'
 
     - name: Install dependencies
       run: |
@@ -48,24 +48,13 @@ jobs:
 
     - name: Insert data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql        
 
-    - name: Load functions and procedures
+    - name: Query data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_functions_and_procedures.sql
-
-    - name: Load views and indexes
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_retrieve_everything_from_a_table.sql
+        
+    - name: Run tests
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 04_views_and_indexes.sql
-
-    - name: Load triggers
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 05_triggers.sql
-
-    - name: Run script queries
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f script.sql
-
-    - name: Run unit tests
-      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
         pytest -vv
