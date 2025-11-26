@@ -1,4 +1,4 @@
--- TABLAS PRINCIPALES
+-- TABLAS PRINCIPALEs
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
