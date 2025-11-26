@@ -1,19 +1,29 @@
 import pytest
-import psycopg2
 
-def test_registrar_pedido():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="exercises",
-        user="postgres",
-        password="postgres"
-    )
-    cur = conn.cursor()
-    cur.execute("CALL registrar_pedido(1, '2025-05-20', 2, 3)")
-    conn.commit()
-    
-    cur.execute("SELECT COUNT(*) FROM detalle_pedido WHERE id_producto = 2")
-    count = cur.fetchone()[0]
-    assert count >= 1
-    cur.close()
-    conn.close()
+def test_registrar_pedido(db_connection):
+    """Verifica que el procedimiento almacenado inserta un nuevo pedido y su detalle."""
+    cursor = db_connection.cursor()
+    initial_pedidos_count = 0
+    initial_detalle_count = 0
+
+    # Contar registros iniciales
+    cursor.execute("SELECT COUNT(*) FROM pedidos;")
+    initial_pedidos_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM detalle_pedido;")
+    initial_detalle_count = cursor.fetchone()[0]
+
+    # Ejecutar el procedimiento
+    cursor.execute("CALL registrar_pedido(1, '2025-11-25', 1, 5);")
+    db_connection.commit()
+
+    # Contar registros finales
+    cursor.execute("SELECT COUNT(*) FROM pedidos;")
+    final_pedidos_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM detalle_pedido;")
+    final_detalle_count = cursor.fetchone()[0]
+
+    # Verificar que se insertó exactamente una fila en cada tabla
+    assert final_pedidos_count == initial_pedidos_count + 1, "No se insertó el pedido correctamente."
+    assert final_detalle_count == initial_detalle_count + 1, "No se insertó el detalle correctamente."
+
+    cursor.close()
