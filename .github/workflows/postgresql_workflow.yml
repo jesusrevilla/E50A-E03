@@ -1,3 +1,4 @@
+
 name: Run PostgreSQL Tests
 
 on:
@@ -24,6 +25,13 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -31,7 +39,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.X'
+        python-version: '3.11'
 
     - name: Install dependencies
       run: |
@@ -42,18 +50,6 @@ jobs:
       run: |
         sleep 10
 
-    - name: Set up database schema and data
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
-
-    - name: Insert data
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
-
-    - name: Query data
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
-        
     - name: Run tests
       run: |
         pytest
