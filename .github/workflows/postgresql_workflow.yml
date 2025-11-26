@@ -42,18 +42,18 @@ jobs:
       run: |
         sleep 10
 
-    - name: Set up database schema and data
+    - name: Set up database schema
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 01_create_tables.sql
 
-    - name: Insert data
+    - name: Insert initial data
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 02_insert_data.sql        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 02_insert_data.sql
 
-    - name: Query data
+    - name: Set up DB Objects
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d exercises -f 03_retrieve_everything_from_a_table.sql
-        
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f script.sql
+
     - name: Run tests
       run: |
         pytest
