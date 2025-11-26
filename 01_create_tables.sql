@@ -1,4 +1,3 @@
-
 CREATE TABLE clientes (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
@@ -24,13 +23,27 @@ CREATE TABLE detalle_pedido (
     cantidad INT
 );
 
+CREATE VIEW vista_detalle_pedidos AS
+SELECT
+    c.nombre AS nombre_cliente,
+    p.nombre AS nombre_producto,
+    dp.cantidad,
+    (dp.cantidad * prod.precio) AS total_linea
+FROM
+    detalle_pedido dp
+JOIN
+    pedidos p ON dp.id_pedido = p.id_pedido
+JOIN
+    clientes c ON p.id_cliente = c.id_cliente
+JOIN
+    productos prod ON dp.id_producto = prod.id_producto;
+
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
     id_cliente INT,
     fecha_pedido DATE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 CREATE TABLE productos_json (
     id SERIAL PRIMARY KEY,
@@ -44,7 +57,6 @@ CREATE TABLE usuarios (
     correo TEXT,
     historial_actividad JSONB
 );
-
 
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
