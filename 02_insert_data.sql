@@ -26,9 +26,6 @@ INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
 -- Insertar un nuevo pedido
 INSERT INTO pedidos (id_cliente, fecha) VALUES (1, '2025-05-20');
 
--- Verificar la auditoría
-SELECT * FROM auditoria_pedidos;
-
 INSERT INTO productos_json (nombre, atributos) VALUES
 ('Laptop', '{"marca": "Dell", "ram": "16GB", "procesador": "Intel i7"}'),
 ('Smartphone', '{"marca": "Samsung", "pantalla": "6.5 pulgadas", "almacenamiento": "128GB"}'),
