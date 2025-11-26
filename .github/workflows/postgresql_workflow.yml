@@ -52,7 +52,7 @@ jobs:
 
     - name: Set up DB Objects
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f 03_funciones_logicas.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d test_db -f script.sql
 
     - name: Run tests
       run: |
