@@ -4,18 +4,21 @@ CREATE TABLE clientes (
     correo VARCHAR(100)
 );
 
+-- Creación de la tabla productos
 CREATE TABLE productos (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
     precio DECIMAL(10, 2)
 );
 
+-- Creación de la tabla pedidos
 CREATE TABLE pedidos (
     id_pedido SERIAL PRIMARY KEY,
     id_cliente INT REFERENCES clientes(id_cliente),
     fecha DATE
 );
 
+-- Creación de la tabla detalle_pedido
 CREATE TABLE detalle_pedido (
     id_detalle SERIAL PRIMARY KEY,
     id_pedido INT REFERENCES pedidos(id_pedido),
@@ -23,7 +26,7 @@ CREATE TABLE detalle_pedido (
     cantidad INT
 );
 
--- Crear la tabla de auditoría (ya incluida en el enunciado)
+-- Creación de la tabla de auditoría (para el ejercicio de Triggers)
 CREATE TABLE auditoria_pedidos (
     id_auditoria SERIAL PRIMARY KEY,
     id_cliente INT,
@@ -31,29 +34,12 @@ CREATE TABLE auditoria_pedidos (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Crear tabla con campo JSONB (ya incluida en el enunciado)
-CREATE TABLE productos_json (
-    id SERIAL PRIMARY KEY,
-    nombre TEXT,
-    atributos JSONB
-);
-
---  Crear la tabla (ya incluida en el enunciado)
-CREATE TABLE usuarios (
-    id SERIAL PRIMARY KEY,
-    nombre TEXT,
-    correo TEXT,
-    historial_actividad JSONB
-);
-
--- 1. Crear las tablas (ya incluidas en el enunciado)
--- Nodos: ciudades
+-- Creación de tablas para el ejercicio de Grafos
 CREATE TABLE ciudades (
     id SERIAL PRIMARY KEY,
     nombre TEXT NOT NULL
 );
 
--- Aristas: rutas entre ciudades
 CREATE TABLE rutas (
     id_origen INT REFERENCES ciudades(id),
     id_destino INT REFERENCES ciudades(id),
